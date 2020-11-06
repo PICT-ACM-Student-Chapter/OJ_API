@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Start Postgres
-        run: docker-compose up db
+        run: docker-compose up -d db
       - name: Test and Lint
         run: docker-compose run --rm app sh -c "python manage.py wait_for_db && python manage.py test && flake8"
 
