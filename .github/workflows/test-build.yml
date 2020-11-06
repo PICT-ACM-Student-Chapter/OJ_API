@@ -5,9 +5,9 @@ name: Django Test and Build
 
 on:
   push:
-    branches: [master]
+    branches: [main]
   pull_request:
-    branches: [master]
+    branches: [main]
 
 jobs:
   test-and-lint:
@@ -19,7 +19,7 @@ jobs:
 
   build-and-publish-latest:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master' # Running this job only for master branch
+    if: github.ref == 'refs/heads/main' # Running this job only for main branch
     steps:
       - uses: actions/checkout@v2 # Checking out the repo
       - name: Build and Publish latest Docker image
