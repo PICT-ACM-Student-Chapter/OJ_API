@@ -42,3 +42,7 @@ docker-compose run app sh -c "command here"
 * Add New App: 
 
     `docker-compose run app sh -c "python manage.py startapp polls"`
+
+## API Documentation
+API documentation is done using swagger
+visit `/swagger` for API documentation 
