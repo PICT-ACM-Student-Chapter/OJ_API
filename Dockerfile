@@ -1,6 +1,8 @@
 FROM python:3-alpine
 ENV PYTHONUNBUFFERED 1
 
+RUN apk update
+
 COPY ./app/requirements.txt /requirements.txt
 RUN apk add --update --no-cache postgresql-client
 RUN apk add --update --no-cache --virtual .tmp-build-deps \
