@@ -33,7 +33,7 @@ docker-compose up
 
 ## Execute Commands
 
-To excute any commands inside django docker container, follow this format:
+To execute any commands inside django docker container, follow this format:
 
 ```
 docker-compose run app sh -c "command here"
