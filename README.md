@@ -5,6 +5,11 @@
 
 🔥 Online Judge Platform of PICT ACM Student Chapter
 
+## System Architecture
+
+![System Architecture](./assets/system_arch.png)
+
+
 ## Prerequisites
 This project is built on top of docker containers. 
 So ensure that you have Docker and Docker Compose installed on your system
