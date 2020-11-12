@@ -1,6 +1,8 @@
 # Create your views here.
+from django.http import HttpResponse, JsonResponse
 from rest_framework import permissions
 from rest_framework.generics import ListAPIView, RetrieveAPIView
+from rest_framework.views import APIView
 
 from contest.models import Contest
 from contest.permissions import IsAllowedInContest
@@ -21,3 +23,17 @@ class ContestDetails(RetrieveAPIView):
     lookup_url_kwarg = 'id'
     queryset = Contest.objects.all()
     permission_classes = [permissions.IsAuthenticated, IsAllowedInContest]
+
+
+class StartContest(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def patch(self, request, id):
+        try:
+            user_contest = UserContest.objects.get(id=self.kwargs['id'],
+                                                   user_id=id)
+            user_contest.status = "STARTED"
+            user_contest.save()
+            return JsonResponse(UserContestSerializer(user_contest).data)
+        except UserContest.DoesNotExist:
+            return HttpResponse(status=404)
