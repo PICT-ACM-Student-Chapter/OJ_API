@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     'martor',
     'core',
     'contest',
-    'question'
+    'question',
+    'submission'
 ]
 
 MIDDLEWARE = [
@@ -199,8 +200,9 @@ MARTOR_SEARCH_USERS_URL = '/martor/search-user/'  # default
 MARTOR_MARKDOWN_BASE_EMOJI_URL = 'https://github.githubassets.com/images/icons/emoji/'  # default from github
 MARTOR_MARKDOWN_BASE_MENTION_URL = 'https://python.web.id/author/'  # please change this to your domain
 
-AWS_ACCESS_KEY_ID = 'ACCESS_KEY'
-AWS_SECRET_ACCESS_KEY = 'SECRET_KEY'
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-AWS_STORAGE_BUCKET_NAME = 'pasc-oj'
-AWS_S3_REGION_NAME = 'ap-south-1'
+
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
+AWS_S3_REGION_NAME = os.environ.get('AWS_S3_REGION_NAME')
