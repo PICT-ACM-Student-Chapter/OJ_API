@@ -1,7 +1,8 @@
-from django.conf.urls import url
+from django.urls import path
 
-from contest.views import Contests
+from contest.views import ContestList, ContestDetails
 
 urlpatterns = [
-    url(r'^/$', Contests.as_view()),
+    path(r'/<int:id>', ContestDetails.as_view()),
+    path(r'/', ContestList.as_view()),
 ]

@@ -2,7 +2,16 @@ from rest_framework import serializers
 
 from contest.models import Contest
 from core.models import UserContest
-from core.serializers import UserSafeInfoSerializer
+from question.serializers import QuestionListSerializer
+
+
+class ContestSerializer(serializers.ModelSerializer):
+    questions = QuestionListSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Contest
+        fields = ['id', 'name', 'start_time', 'end_time', 'instructions',
+                  'questions']
 
 
 class ContestListSerializer(serializers.ModelSerializer):
@@ -11,11 +20,10 @@ class ContestListSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'start_time', 'end_time']
 
 
-class ContestSerializer(serializers.ModelSerializer):
-    user_id = UserSafeInfoSerializer()
+class UserContestSerializer(serializers.ModelSerializer):
     contest_id = ContestListSerializer()
 
     class Meta:
         model = UserContest
-        fields = '__all__'
+        fields = ['id', 'contest_id', 'status', 'score']
         depth = 2

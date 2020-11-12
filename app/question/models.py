@@ -1,5 +1,6 @@
-from contest.models import Contest
 from django.db import models
+
+from contest.models import Contest
 
 
 # Create your models here.
@@ -8,7 +9,7 @@ class Question(models.Model):
     name = models.CharField(max_length=30)
     description = models.TextField()
     contest_id = models.ForeignKey(Contest, on_delete=models.SET_NULL,
-                                   null=True)
+                                   null=True, related_name="questions")
     score = models.IntegerField()
 
 
