@@ -9,6 +9,7 @@ class UserSafeInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['username', 'first_name', 'last_name', 'email']
+        lookup_field = 'id'
 
 
 class UserRegisterSerializer(serializers.ModelSerializer):
@@ -23,4 +24,3 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         user.set_password(password)
         user.save()
         return user
-
