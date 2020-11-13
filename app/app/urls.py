@@ -49,6 +49,7 @@ urlpatterns = [
                   path('admin/', admin.site.urls),
                   path('martor/', include('martor.urls')),
                   path('__debug__/', include(debug_toolbar.urls)),
+                  path('contests', include('contest.urls')),
                   path('core/', include('core.urls')),
 
               ] + static(settings.STATIC_URL,
