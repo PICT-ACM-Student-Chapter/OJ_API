@@ -1,6 +1,8 @@
 from django.contrib.auth.models import User
-from core.models import Language
 from rest_framework import serializers
+
+from core.models import Language
+
 
 class LanguageSerializer(serializers.ModelSerializer):
     """Serializer for Language"""
@@ -8,6 +10,7 @@ class LanguageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Language
         fields = ['id', 'name']
+
 
 # Serializer to get only safe fields (exclude sensitive data like pass-hash)
 # Can be merged if others serializers added
