@@ -6,6 +6,11 @@ from django.conf import settings
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from django.http import HttpResponse, JsonResponse
+from rest_framework import permissions
+from rest_framework.generics import CreateAPIView, RetrieveAPIView
+from rest_framework.views import APIView
+from core.serializers import UserRegisterSerializer, UserSafeInfoSerializer
 
 
 class LanguageList(generics.ListAPIView):
@@ -22,3 +27,20 @@ class ServerTime(APIView):
 class Version(APIView):
     def get(self, request, *args, **kwargs):
         return Response({"version": settings.VERSION})
+
+
+
+# Create your views here.
+
+class Register(CreateAPIView):
+    serializer_class = UserRegisterSerializer
+    permission_classes = (permissions.AllowAny,)
+
+
+class UserProfile(RetrieveAPIView):
+    serializer_class = UserSafeInfoSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request, *args, **kwargs):
+        user = UserSafeInfoSerializer(request.user)
+        return JsonResponse(user.data)
