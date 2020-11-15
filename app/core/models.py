@@ -2,6 +2,8 @@ from contest.models import Contest
 from django.contrib.auth.models import User
 from django.db import models
 
+User._meta.get_field('email')._unique = True
+
 
 class Language(models.Model):
     id = models.AutoField(primary_key=True)

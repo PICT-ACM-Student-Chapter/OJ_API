@@ -1,13 +1,12 @@
 # Create your views here.
-from django.http import HttpResponse, JsonResponse
-from rest_framework import permissions
-from rest_framework.generics import ListAPIView, RetrieveAPIView
-from rest_framework.views import APIView
-
 from contest.models import Contest
 from contest.permissions import IsAllowedInContest
 from contest.serializers import UserContestSerializer, ContestSerializer
 from core.models import UserContest
+from django.http import HttpResponse, JsonResponse
+from rest_framework import permissions
+from rest_framework.generics import ListAPIView, RetrieveAPIView
+from rest_framework.views import APIView
 
 
 class ContestList(ListAPIView):
@@ -30,8 +29,9 @@ class StartContest(APIView):
 
     def patch(self, request, id):
         try:
-            user_contest = UserContest.objects.get(id=self.kwargs['id'],
-                                                   user_id=id)
+            user_contest = UserContest.objects.get(
+                contest_id=id,
+                user_id=request.user.id)
             user_contest.status = "STARTED"
             user_contest.save()
             return JsonResponse(UserContestSerializer(user_contest).data)
