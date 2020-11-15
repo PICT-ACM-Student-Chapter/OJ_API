@@ -1,5 +1,16 @@
+import django.contrib.auth.password_validation as validators
+from core.models import Language
 from django.contrib.auth.models import User
+from django.core import exceptions
 from rest_framework import serializers
+
+
+class LanguageSerializer(serializers.ModelSerializer):
+    """Serializer for Language"""
+
+    class Meta:
+        model = Language
+        fields = ['id', 'name']
 
 
 # Serializer to get only safe fields (exclude sensitive data like pass-hash)
@@ -29,5 +40,18 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         password = validated_data.pop('password')
         user = User(**validated_data)
         user.set_password(password)
-        user.save()
-        return user
+
+        errors = dict()
+        try:
+            # validate the password and catch the exception
+            validators.validate_password(password=password, user=User)
+            user.save()
+            return user
+
+        # the exception raised here is different than
+        # serializers.ValidationError
+        except exceptions.ValidationError as e:
+            errors['password'] = list(e.messages)
+
+        if errors:
+            raise serializers.ValidationError(errors)

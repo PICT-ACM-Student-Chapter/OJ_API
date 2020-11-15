@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
 import os
+from datetime import timedelta
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -119,7 +120,6 @@ LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'Asia/Calcutta'
 
 USE_I18N = True
-
 USE_L10N = True
 
 USE_TZ = True
@@ -207,6 +207,8 @@ AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
 AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
 AWS_S3_REGION_NAME = os.environ.get('AWS_S3_REGION_NAME')
 
+VERSION = '0.0.1a'
+
 # Rest_framework Config
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSIONS_CLASSES': (
@@ -215,4 +217,9 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     )
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1)
 }

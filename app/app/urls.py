@@ -50,7 +50,7 @@ urlpatterns = [
                   path('martor/', include('martor.urls')),
                   path('__debug__/', include(debug_toolbar.urls)),
                   path('contests', include('contest.urls')),
-                  path('core/', include('core.urls')),
+                  path('', include('core.urls')),
 
               ] + static(settings.STATIC_URL,
                          document_root=settings.STATIC_ROOT)
