@@ -17,5 +17,6 @@ class Testcase(models.Model):
     id = models.IntegerField(primary_key=True)
     input = models.FileField()
     output = models.FileField()
-    que_id = models.ForeignKey(Question, on_delete=models.CASCADE)
+    que_id = models.ForeignKey(Question, on_delete=models.CASCADE,
+                               related_name="test_cases")
     is_public = models.BooleanField(default=False)
