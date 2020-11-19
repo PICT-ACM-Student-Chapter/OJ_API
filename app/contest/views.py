@@ -1,12 +1,13 @@
 # Create your views here.
-from contest.models import Contest
-from contest.permissions import IsAllowedInContest
-from contest.serializers import UserContestSerializer, ContestSerializer
-from core.models import UserContest
 from django.http import HttpResponse, JsonResponse
 from rest_framework import permissions
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.views import APIView
+
+from contest.models import Contest
+from contest.permissions import IsAllowedInContest, IsInTime
+from contest.serializers import UserContestSerializer, ContestSerializer
+from core.models import UserContest
 
 
 class ContestList(ListAPIView):
@@ -21,11 +22,12 @@ class ContestDetails(RetrieveAPIView):
     serializer_class = ContestSerializer
     lookup_url_kwarg = 'id'
     queryset = Contest.objects.all()
-    permission_classes = [permissions.IsAuthenticated, IsAllowedInContest]
+    permission_classes = [permissions.IsAuthenticated, IsAllowedInContest,
+                          IsInTime]
 
 
 class StartContest(APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsInTime]
 
     def patch(self, request, id):
         try:
