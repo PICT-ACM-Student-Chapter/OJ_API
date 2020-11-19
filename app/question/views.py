@@ -14,8 +14,7 @@ class QuestionsList(RetrieveAPIView):
     permission_classes = [IsQuestionAllowed]
 
     def get_queryset(self):
-        return Question.objects.filter(
-            contest_id=self.kwargs['contest_id']).prefetch_related(
+        return Question.objects.all().prefetch_related(
             Prefetch('test_cases',
                      queryset=Testcase.objects.filter(is_public=True))
         )
