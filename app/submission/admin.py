@@ -19,7 +19,13 @@ class SubmissionModelAdmin(admin.ModelAdmin):
     ]
 
 
+class RunSubmissionModelAdmin(admin.ModelAdmin):
+    formfield_overrides = {
+        models.TextField: {'widget': AdminMartorWidget},
+    }
+
+
 # Register your models here.
 admin.site.register(Submission, SubmissionModelAdmin)
-admin.site.register(RunSubmission)
+admin.site.register(RunSubmission, RunSubmissionModelAdmin)
 admin.site.register(Verdict)

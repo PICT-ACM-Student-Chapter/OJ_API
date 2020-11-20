@@ -1,23 +1,11 @@
 # Create your models here.
+from core.models import Language
 from django.contrib.auth.models import User
 from django.db import models
-
-from core.models import Language
 from question.models import Question, Testcase
-
-
-class Submission(models.Model):
-    id = models.AutoField(primary_key=True)
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
-    ques_id = models.ForeignKey(Question, on_delete=models.CASCADE)
-    lang_id = models.ForeignKey(Language, on_delete=models.CASCADE)
-
 
 IN_QUEUE = 'IN_QUEUE'
 PROCESSING = 'PROCESSING'
-ACCEPTED = 'JR'
-SENIOR = 'SR'
-GRADUATE = 'GR'
 STATUSES = [
     ('IN_QUEUE', 'In Queue'),
     ('PROCESSING', 'Processing'),
@@ -35,6 +23,14 @@ STATUSES = [
 ]
 
 
+class Submission(models.Model):
+    id = models.AutoField(primary_key=True)
+    code = models.TextField()
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    ques_id = models.ForeignKey(Question, on_delete=models.CASCADE)
+    lang_id = models.ForeignKey(Language, on_delete=models.CASCADE)
+
+
 class Verdict(models.Model):
     id = models.AutoField(primary_key=True)
     status = models.CharField(max_length=32, choices=STATUSES,
@@ -48,6 +44,7 @@ class Verdict(models.Model):
 
 class RunSubmission(models.Model):
     id = models.AutoField(primary_key=True)
+    code = models.TextField()
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
     lang_id = models.ForeignKey(Language, on_delete=models.CASCADE)
     status = models.CharField(max_length=32, choices=STATUSES,
