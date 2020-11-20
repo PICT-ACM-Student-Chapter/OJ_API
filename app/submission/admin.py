@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.db import models
 from martor.widgets import AdminMartorWidget
-from submission.models import Submission, Verdict
+from submission.models import Submission, Verdict, RunSubmission
 
 
 # Register your models here.
@@ -21,4 +21,5 @@ class SubmissionModelAdmin(admin.ModelAdmin):
 
 # Register your models here.
 admin.site.register(Submission, SubmissionModelAdmin)
+admin.site.register(RunSubmission)
 admin.site.register(Verdict)
