@@ -49,7 +49,7 @@ class RunSubmission(models.Model):
     lang_id = models.ForeignKey(Language, on_delete=models.CASCADE)
     status = models.CharField(max_length=32, choices=STATUSES,
                               default=IN_QUEUE)
-    stdin = models.TextField()
+    stdin = models.TextField(blank=True)
     stdout = models.TextField(null=True)
     stderr = models.TextField(null=True)
     exec_time = models.CharField(max_length=10, null=True)
