@@ -15,7 +15,10 @@ class IsAllowedInContest(permissions.BasePermission):
                                           ).count() > 0
 
 
+# TODO: Derive from base IsInTime class
 class IsInTime(permissions.BasePermission):
+    message = "Access denied. Reason: outside contest time"
+
     def has_permission(self, request, view):
         curr_time = datetime.datetime.now(tz=pytz.UTC)
         return Contest.objects.filter(id=view.kwargs['id'],

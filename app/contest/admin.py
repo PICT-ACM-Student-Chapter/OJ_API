@@ -2,15 +2,14 @@ from django.contrib import admin
 from django.db import models
 from martor.widgets import AdminMartorWidget
 
-from contest.models import Contest
+from contest.models import Contest, ContestQue
 
 
 # Register your models here.
-from question.models import Question
 
 
 class QuestionsInline(admin.TabularInline):
-    model = Question.contests.through
+    model = ContestQue
     verbose_name = "Question"
     verbose_name_plural = "Contest Questions"
 
