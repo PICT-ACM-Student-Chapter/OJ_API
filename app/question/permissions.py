@@ -15,6 +15,8 @@ class IsQuestionAllowed(permissions.BasePermission):
 
 
 class IsInTime(permissions.BasePermission):
+    message = "Access denied. Reason: outside contest time"
+    
     def has_permission(self, request, view):
         curr_time = datetime.datetime.now(tz=pytz.UTC)
         return Contest.objects.filter(questions__id=view.kwargs['que_id'],
