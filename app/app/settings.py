@@ -233,3 +233,7 @@ SWAGGER_SETTINGS = {
         }
     }
 }
+
+# JUDGE0 SETTINGS
+JUDGE0_HOST = "http://judge0"
+JUDGE0_CALLBACK = "http://app/callback/judge0"

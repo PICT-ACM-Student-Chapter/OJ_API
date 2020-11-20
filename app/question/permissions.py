@@ -1,10 +1,9 @@
 import datetime
 
 import pytz
-from rest_framework import permissions
-
 from contest.models import Contest
 from core.models import UserContest
+from rest_framework import permissions
 
 
 class IsQuestionAllowed(permissions.BasePermission):
@@ -16,7 +15,7 @@ class IsQuestionAllowed(permissions.BasePermission):
 
 class IsInTime(permissions.BasePermission):
     message = "Access denied. Reason: outside contest time"
-    
+
     def has_permission(self, request, view):
         curr_time = datetime.datetime.now(tz=pytz.UTC)
         return Contest.objects.filter(questions__id=view.kwargs['que_id'],
