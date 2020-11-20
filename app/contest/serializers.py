@@ -1,12 +1,29 @@
 from rest_framework import serializers
 
-from contest.models import Contest
+from contest.models import Contest, ContestQue
 from core.models import UserContest
-from question.serializers import QuestionListSerializer
+
+
+class ContestQueSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContestQue
+        fields = ['order', 'question']
+        depth = 2
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        que_repr = representation.pop('question')
+        for key in que_repr:
+            representation[key] = que_repr[key]
+        return representation
 
 
 class ContestSerializer(serializers.ModelSerializer):
-    questions = QuestionListSerializer(many=True, read_only=True)
+    questions = serializers.SerializerMethodField(read_only=True)
+
+    def get_questions(self, model):
+        return ContestQueSerializer(
+            ContestQue.objects.filter(contest_id=model.id), many=True).data
 
     class Meta:
         model = Contest
