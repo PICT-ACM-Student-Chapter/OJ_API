@@ -37,7 +37,8 @@ STATUSES = [
 
 class Verdict(models.Model):
     id = models.AutoField(primary_key=True)
-    status = models.CharField(max_length=32, choices=STATUSES, default=IN_QUEUE)
+    status = models.CharField(max_length=32, choices=STATUSES,
+                              default=IN_QUEUE)
     test_case = models.ForeignKey(Testcase, on_delete=models.CASCADE)
     submission = models.ForeignKey(to=Submission, related_name='verdicts',
                                    on_delete=models.CASCADE)
@@ -49,7 +50,8 @@ class RunSubmission(models.Model):
     id = models.AutoField(primary_key=True)
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
     lang_id = models.ForeignKey(Language, on_delete=models.CASCADE)
-    status = models.CharField(max_length=32, choices=STATUSES, default=IN_QUEUE)
+    status = models.CharField(max_length=32, choices=STATUSES,
+                              default=IN_QUEUE)
     stdin = models.TextField()
     stdout = models.TextField(null=True)
     stderr = models.TextField(null=True)
