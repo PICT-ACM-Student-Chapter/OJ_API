@@ -20,6 +20,8 @@ class ContestModelAdmin(admin.ModelAdmin):
     }
     inlines = [QuestionsInline]
     exclude = ['questions']
+    list_display = ('name', 'start_time', 'end_time')
+    search_fields = ('name',)
 
 
 admin.site.register(Contest, ContestModelAdmin)

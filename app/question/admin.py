@@ -18,8 +18,15 @@ class QuestionModelAdmin(admin.ModelAdmin):
         models.TextField: {'widget': AdminMartorWidget},
     }
     inlines = [TestCasesInline]
+    list_display = ('name', 'score')
+    search_fields = ('name', 'score')
+
+
+class TestcaseAdmin(admin.ModelAdmin):
+    list_display = ('__str__', 'que_id', 'is_public')
+    list_filter = ('que_id', 'is_public')
 
 
 # Register your models here.
 admin.site.register(Question, QuestionModelAdmin)
-admin.site.register(Testcase)
+admin.site.register(Testcase, TestcaseAdmin)
