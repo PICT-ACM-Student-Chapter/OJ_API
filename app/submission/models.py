@@ -39,8 +39,11 @@ class Verdict(models.Model):
     test_case = models.ForeignKey(Testcase, on_delete=models.CASCADE)
     submission = models.ForeignKey(to=Submission, related_name='verdicts',
                                    on_delete=models.CASCADE)
+    stdout = models.TextField(null=True, blank=True)
+    stderr = models.TextField(null=True, blank=True)
     exec_time = models.CharField(max_length=10, null=True)
     mem = models.CharField(max_length=10, null=True)
+    judge0_token = models.CharField(max_length=40)
 
 
 class RunSubmission(models.Model):

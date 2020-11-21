@@ -7,7 +7,7 @@ from rest_framework.generics import CreateAPIView, RetrieveAPIView
 from rest_framework.views import APIView
 
 from submission.judge0_utils import submit_to_run
-from submission.models import RunSubmission
+from submission.models import RunSubmission, Verdict
 from submission.permissions import IsRunInTime, IsRunSelf
 from submission.serializers import RunSubmissionSerializer
 
@@ -50,7 +50,6 @@ class CheckRunStatus(RetrieveAPIView):
 
 
 class CallbackRunNow(APIView):
-    serializer_class = RunSubmissionSerializer
 
     def put(self, request):
         run_submission = RunSubmission.objects.filter(
@@ -66,4 +65,21 @@ class CallbackRunNow(APIView):
 
         run_submission.save()
 
+        return JsonResponse({})
+
+
+class CallbackSubmission(APIView):
+
+    def put(self, request):
+        verdict_submission = Verdict.objects.filter(
+            judge0_token=request.data['token']).first()
+        verdict_submission.stdout = request.data['stdout']
+        verdict_submission.stderr = request.data['stderr'] or request.data[
+            'message'] or request.data['compile_output'] or ''
+        verdict_submission.exec_time = request.data['time']
+        verdict_submission.mem = request.data['memory']
+        status = request.data['status']['id']
+        verdict_submission.status = STATUSES[status]
+
+        verdict_submission.save()
         return JsonResponse({})
