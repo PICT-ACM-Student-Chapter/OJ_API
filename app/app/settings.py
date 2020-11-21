@@ -169,8 +169,8 @@ MARTOR_TOOLBAR_BUTTONS = [
 MARTOR_ENABLE_LABEL = False
 
 # Imgur API Keys
-MARTOR_IMGUR_CLIENT_ID = 'your-client-id'
-MARTOR_IMGUR_API_KEY = 'your-api-key'
+MARTOR_IMGUR_CLIENT_ID = os.environ.get('MARTOR_IMGUR_CLIENT_ID')
+MARTOR_IMGUR_API_KEY = os.environ.get('MARTOR_IMGUR_API_KEY')
 
 # Markdownify
 MARTOR_MARKDOWNIFY_FUNCTION = 'martor.utils.markdownify'  # default
@@ -210,7 +210,8 @@ AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
 AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
 AWS_S3_REGION_NAME = os.environ.get('AWS_S3_REGION_NAME')
-AWS_S3_ADDRESSING_STYLE = "virtual"  # Required to generate signed URLs for getting files in Admin Panel and DRF
+AWS_S3_ADDRESSING_STYLE = "virtual"  # Required to generate signed URLs for
+# getting files in Admin Panel and DRF
 
 VERSION = '0.0.1a'
 
@@ -235,6 +236,16 @@ SWAGGER_SETTINGS = {
             'type': 'apiKey',
             'name': 'Authorization',
             'in': 'header'
+        }
+    }
+}
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://redis:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "PASSWORD": "YourPasswordHere1234"
         }
     }
 }
