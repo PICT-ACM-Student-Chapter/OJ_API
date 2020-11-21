@@ -21,7 +21,7 @@ services:
       - DB_USER=postgres
       - DB_PASS=postgres
       - JUDGE0_BASE_URL=http://172.17.0.1
-      - JUDGE0_RUN_CALLBACK_URL=https://webhook.site/bf3d131c-60bd-4a92-97e5-a9806154cd42
+      - JUDGE0_RUN_CALLBACK_URL=http://172.17.0.1:8000/run/callback
     env_file:
       - .env
     depends_on:

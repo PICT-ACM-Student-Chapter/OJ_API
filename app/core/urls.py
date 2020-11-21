@@ -19,6 +19,5 @@ urlpatterns = [
     path('userProfile', UserProfile.as_view()),
     path('languages/', LanguageList.as_view(), name='lang-list'),
     path('time/', ServerTime.as_view(), name='server-time'),
-    path('', include('submission.urls')),
     path('', Version.as_view(), name='version'),
 ]

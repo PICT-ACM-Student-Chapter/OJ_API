@@ -17,6 +17,7 @@ STATUSES = [
     ('SIGXFSZ', 'Runtime Error (SIGXFSZ)'),
     ('SIGFPE', 'Runtime Error (SIGFPE)'),
     ('SIGABRT', 'Runtime Error (SIGABRT)'),
+    ('RTE', 'Runtime Error (other)'),
     ('NZEC', 'Runtime Error (NZEC)'),
     ('IE', 'Internal Error'),
     ('EFE', 'Exec Format Error'),

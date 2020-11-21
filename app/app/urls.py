@@ -52,5 +52,7 @@ urlpatterns = [
                   path('contests', include('contest.urls')),
                   path('', include('core.urls')),
                   path('questions', include('question.urls')),
+                  path('', include('submission.urls')),
+
               ] + static(settings.STATIC_URL,
                          document_root=settings.STATIC_ROOT)
