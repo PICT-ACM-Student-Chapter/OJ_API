@@ -3,7 +3,6 @@ import datetime
 import pytz
 from rest_framework import permissions
 
-from contest.models import Contest
 from core.models import UserContest
 
 
@@ -21,7 +20,22 @@ class IsInTime(permissions.BasePermission):
 
     def has_permission(self, request, view):
         curr_time = datetime.datetime.now(tz=pytz.UTC)
-        return Contest.objects.filter(id=view.kwargs['id'],
-                                      start_time__lte=curr_time,
-                                      end_time__gte=curr_time
-                                      ).count() > 0
+        return UserContest.objects.filter(
+            contest_id__id=view.kwargs['id'],
+            contest_id__start_time__lte=curr_time,
+            contest_id__end_time__gte=curr_time,
+            status='STARTED'
+        ).count() > 0
+
+
+class IsStartInTime(permissions.BasePermission):
+    message = "Access denied. Reason: outside contest time"
+
+    def has_permission(self, request, view):
+        curr_time = datetime.datetime.now(tz=pytz.UTC)
+        return UserContest.objects.filter(
+            contest_id__id=view.kwargs['id'],
+            contest_id__start_time__lte=curr_time,
+            contest_id__end_time__gte=curr_time,
+            status='REGISTERED'
+        ).count() > 0

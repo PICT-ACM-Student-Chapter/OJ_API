@@ -20,5 +20,6 @@ class IsRunInTime(permissions.BasePermission):
         return UserContest.objects.filter(
             user_id=request.user.id,
             contest_id__start_time__lte=curr_time,
-            contest_id__end_time__gte=curr_time
+            contest_id__end_time__gte=curr_time,
+            status='STARTED'
         ).count() > 0

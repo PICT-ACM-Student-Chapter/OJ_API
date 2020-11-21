@@ -5,7 +5,7 @@ from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.views import APIView
 
 from contest.models import Contest
-from contest.permissions import IsAllowedInContest, IsInTime
+from contest.permissions import IsAllowedInContest, IsInTime, IsStartInTime
 from contest.serializers import UserContestSerializer, ContestSerializer
 from core.models import UserContest
 
@@ -27,7 +27,7 @@ class ContestDetails(RetrieveAPIView):
 
 
 class StartContest(APIView):
-    permission_classes = [permissions.IsAuthenticated, IsInTime]
+    permission_classes = [permissions.IsAuthenticated, IsStartInTime]
 
     def patch(self, request, id):
         try:
