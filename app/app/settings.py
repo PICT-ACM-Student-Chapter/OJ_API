@@ -46,7 +46,8 @@ INSTALLED_APPS = [
     'core',
     'contest',
     'question',
-    'submission'
+    'submission',
+    'redisboard'
 ]
 
 MIDDLEWARE = [

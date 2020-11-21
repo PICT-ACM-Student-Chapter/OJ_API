@@ -14,3 +14,4 @@ pytz~=2020.4
 requests~=2.25.0
 django-3-jet==1.0.8
 django-redis>=4.12.1,<4.13.0
+django-redisboard>=4.1.1,<4.2.0
