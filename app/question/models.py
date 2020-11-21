@@ -20,6 +20,9 @@ class Question(models.Model):
     description = models.TextField()
     score = models.IntegerField()
 
+    def __str__(self):
+        return "{} - ID{}".format(self.name, self.id)
+
 
 class Testcase(models.Model):
     id = models.IntegerField(primary_key=True)
@@ -28,3 +31,6 @@ class Testcase(models.Model):
     que_id = models.ForeignKey(Question, on_delete=models.CASCADE,
                                related_name="test_cases")
     is_public = models.BooleanField(default=False)
+
+    def __str__(self):
+        return "{} - TC{}".format(self.que_id.name, self.id)

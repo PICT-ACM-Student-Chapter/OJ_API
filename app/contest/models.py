@@ -13,6 +13,9 @@ class Contest(models.Model):
     questions = models.ManyToManyField(to=Question, related_name='contests',
                                        through='ContestQue')
 
+    def __str__(self):
+        return "{} (ID{})".format(self.name, self.id)
+
 
 class ContestQue(models.Model):
     contest = models.ForeignKey(Contest, on_delete=models.CASCADE)

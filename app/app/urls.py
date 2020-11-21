@@ -46,6 +46,7 @@ urlpatterns = [
                   url(r'^redoc/$', schema_view.with_ui('redoc',
                                                        cache_timeout=0),
                       name='schema-redoc'),
+                  url(r'^jet/', include('jet.urls', 'jet')),
                   path('admin/', admin.site.urls),
                   path('martor/', include('martor.urls')),
                   path('__debug__/', include(debug_toolbar.urls)),

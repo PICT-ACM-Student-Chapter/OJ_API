@@ -30,6 +30,7 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    'jet',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -136,6 +137,10 @@ CORS_ORIGIN_ALLOW_ALL = True
 
 INTERNAL_IPS = ('127.0.0.1',)
 
+# ADMIN PANEL
+
+X_FRAME_OPTIONS = 'SAMEORIGIN'
+
 # Choices are: "semantic", "bootstrap"
 MARTOR_THEME = 'semantic'
 
@@ -233,7 +238,3 @@ SWAGGER_SETTINGS = {
         }
     }
 }
-
-# JUDGE0 SETTINGS
-JUDGE0_HOST = "http://judge0"
-JUDGE0_CALLBACK = "http://app/callback/judge0"

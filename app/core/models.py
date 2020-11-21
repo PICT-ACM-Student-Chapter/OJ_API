@@ -1,8 +1,8 @@
+from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator
+from django.db import models
 
 from contest.models import Contest
-from django.contrib.auth.models import User
-from django.db import models
 
 User._meta.get_field('email')._unique = True
 
@@ -19,6 +19,9 @@ class Language(models.Model):
     process_limit = models.IntegerField()
     time_limit = models.IntegerField()
 
+    def __str__(self):
+        return "{} - ID{}".format(self.name, self.id)
+
 
 class UserContest(models.Model):
     contest_id = models.ForeignKey(Contest, on_delete=models.CASCADE)
@@ -30,3 +33,6 @@ class UserContest(models.Model):
         indexes = [
             models.Index(fields=['contest_id', 'user_id', ]),
         ]
+
+    def __str__(self):
+        return "{}-{}".format(self.contest_id.name, self.user_id.username)
