@@ -20,8 +20,10 @@ services:
       - DB_NAME=app
       - DB_USER=postgres
       - DB_PASS=postgres
-#    env_file:
-#      - .env
+      - JUDGE0_BASE_URL=http://172.17.0.1
+      - JUDGE0_RUN_CALLBACK_URL=https://webhook.site/bf3d131c-60bd-4a92-97e5-a9806154cd42
+    env_file:
+      - .env
     depends_on:
       - db-django
 
