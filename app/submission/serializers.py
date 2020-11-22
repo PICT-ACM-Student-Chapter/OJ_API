@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from submission.models import RunSubmission
+from .models import RunSubmission, Submission
 
 
 class RunSubmissionSerializer(serializers.ModelSerializer):
@@ -15,4 +15,13 @@ class RunSubmissionSerializer(serializers.ModelSerializer):
             'stderr': {'required': False, 'read_only': True},
             'exec_time': {'required': False, 'read_only': True},
             'mem': {'required': False, 'read_only': True},
+        }
+
+
+class SubmissionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Submission
+        fields = ['id', 'code', 'lang_id', 'ques_id']
+        extra_kwargs = {
+            'id': {'required': False, 'read_only': True},
         }

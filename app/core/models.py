@@ -1,8 +1,7 @@
+from contest.models import Contest
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator
 from django.db import models
-
-from contest.models import Contest
 
 User._meta.get_field('email')._unique = True
 
@@ -24,9 +23,14 @@ class Language(models.Model):
 
 
 class UserContest(models.Model):
+    STATUSES = [
+        ('REGISTERED', 'REGISTERED'),
+        ('STARTED', 'STARTED'),
+        ('ENDED', 'ENDED')
+    ]
     contest_id = models.ForeignKey(Contest, on_delete=models.CASCADE)
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
-    status = models.CharField(max_length=20)
+    status = models.CharField(max_length=20, choices=STATUSES)
     score = models.IntegerField(default=0)
 
     class Meta:

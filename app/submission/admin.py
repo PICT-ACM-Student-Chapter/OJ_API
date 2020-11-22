@@ -1,5 +1,8 @@
+import base64
+
 from django.contrib import admin
 from django.db import models
+from django.utils.html import format_html
 from martor.widgets import AdminMartorWidget
 from submission.models import Submission, Verdict, RunSubmission
 
@@ -11,12 +14,20 @@ class VerdictInline(admin.TabularInline):
 
 
 class SubmissionModelAdmin(admin.ModelAdmin):
+    fields = ['user_id', 'ques_id', 'lang_id', 'user_code', 'code']
     formfield_overrides = {
         models.TextField: {'widget': AdminMartorWidget},
     }
     inlines = [
         VerdictInline,
     ]
+    readonly_fields = ["user_code", ]
+
+    def user_code(self, obj):
+        base64_bytes = obj.code.encode("ascii")
+        sample_string_bytes = base64.b64decode(base64_bytes)
+        sample_string = sample_string_bytes.decode("ascii")
+        return format_html('<pre>{}</pre>', sample_string)
 
 
 class RunSubmissionModelAdmin(admin.ModelAdmin):

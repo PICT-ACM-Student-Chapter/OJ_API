@@ -19,6 +19,9 @@ class Question(models.Model):
     name = models.CharField(max_length=30)
     description = models.TextField()
     score = models.IntegerField()
+    input_format = models.TextField(default="")
+    output_format = models.TextField(default="")
+    constraints = models.TextField(default="")
 
     def __str__(self):
         return "{} - ID{}".format(self.name, self.id)

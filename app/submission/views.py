@@ -3,13 +3,14 @@ import os
 
 from django.forms import model_to_dict
 from django.http import JsonResponse
+from question.models import Testcase
 from rest_framework.generics import CreateAPIView, RetrieveAPIView
 from rest_framework.views import APIView
-
-from submission.judge0_utils import submit_to_run
 from submission.models import RunSubmission, Verdict
 from submission.permissions import IsRunInTime, IsRunSelf
-from submission.serializers import RunSubmissionSerializer
+
+from .judge0_utils import submit_to_run, submit_to_submit
+from .serializers import RunSubmissionSerializer, SubmissionSerializer
 
 STATUSES = {
     1: 'IN_QUEUE',
@@ -47,6 +48,26 @@ class CheckRunStatus(RetrieveAPIView):
     lookup_url_kwarg = 'id'
     queryset = RunSubmission.objects.all()
     permission_classes = [IsRunInTime, IsRunSelf]
+
+
+class Submit(CreateAPIView):
+    serializer_class = SubmissionSerializer
+    permission_classes = [IsRunInTime]
+
+    def perform_create(self, serializer):
+        judge0_tokens = submit_to_submit(
+            model_to_dict(serializer.validated_data['lang_id']),
+            serializer.validated_data['code'],
+            serializer.validated_data['ques_id'],
+            'https://webhook.site/811af7a2-4712-48cf-8c5a-3da523452065')
+
+        sub = serializer.save(user_id=self.request.user)
+
+        # created verdict objects
+        for x in judge0_tokens:
+            tc = Testcase.objects.get(id=x['test_case_id'])
+            Verdict.objects.create(judge0_token=x['token'], test_case=tc,
+                                   submission=sub)
 
 
 class CallbackRunNow(APIView):
