@@ -1,6 +1,16 @@
 from rest_framework import serializers
 
-from .models import RunSubmission, Submission
+from .models import RunSubmission, Submission, Verdict
+
+
+class VerdictSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Verdict
+        fields = ['test_case', 'status']
+        extra_kwargs = {
+            'id': {'required': False, 'read_only': True},
+            'status': {'required': False, 'read_only': True},
+        }
 
 
 class RunSubmissionSerializer(serializers.ModelSerializer):
@@ -19,9 +29,30 @@ class RunSubmissionSerializer(serializers.ModelSerializer):
 
 
 class SubmissionSerializer(serializers.ModelSerializer):
+    verdicts = VerdictSerializer(read_only=True,
+                                 many=True)  # many=True is required
+
     class Meta:
         model = Submission
-        fields = ['id', 'code', 'lang_id', 'ques_id']
+        fields = ['id', 'code', 'lang_id', 'ques_id', 'verdicts']
         extra_kwargs = {
             'id': {'required': False, 'read_only': True},
+            'verdicts': {'required': False, 'read_only': True},
+
+        }
+
+
+class SubmissionListSerializer(serializers.ModelSerializer):
+    verdicts = VerdictSerializer(read_only=True,
+                                 many=True)  # many=True is required
+
+    class Meta:
+        model = Submission
+        fields = ['id', 'code', 'lang_id', 'ques_id', 'verdicts']
+        extra_kwargs = {
+            'id': {'required': False, 'read_only': True},
+            'verdicts': {'required': False, 'read_only': True},
+            'code': {'required': False, 'read_only': True},
+            'lang_id': {'required': False, 'read_only': True},
+            'ques_id': {'required': False, 'read_only': True},
         }

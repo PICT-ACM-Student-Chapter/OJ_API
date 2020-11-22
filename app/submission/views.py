@@ -3,14 +3,17 @@ import os
 
 from django.forms import model_to_dict
 from django.http import JsonResponse
-from question.models import Testcase
-from rest_framework.generics import CreateAPIView, RetrieveAPIView
+from question.models import Testcase, Question
+from rest_framework import exceptions
+from rest_framework.generics import CreateAPIView, RetrieveAPIView, \
+    ListCreateAPIView, ListAPIView
 from rest_framework.views import APIView
-from submission.models import RunSubmission, Verdict
+from submission.models import RunSubmission, Verdict, Submission
 from submission.permissions import IsRunInTime, IsRunSelf
 
 from .judge0_utils import submit_to_run, submit_to_submit
-from .serializers import RunSubmissionSerializer, SubmissionSerializer
+from .serializers import RunSubmissionSerializer, SubmissionSerializer, \
+    SubmissionListSerializer
 
 STATUSES = {
     1: 'IN_QUEUE',
@@ -50,7 +53,7 @@ class CheckRunStatus(RetrieveAPIView):
     permission_classes = [IsRunInTime, IsRunSelf]
 
 
-class Submit(CreateAPIView):
+class Submit(ListCreateAPIView):
     serializer_class = SubmissionSerializer
     permission_classes = [IsRunInTime]
 
@@ -59,7 +62,7 @@ class Submit(CreateAPIView):
             model_to_dict(serializer.validated_data['lang_id']),
             serializer.validated_data['code'],
             serializer.validated_data['ques_id'],
-            'https://webhook.site/811af7a2-4712-48cf-8c5a-3da523452065')
+            'http://172.17.0.1:8000/submit/callback')
 
         sub = serializer.save(user_id=self.request.user)
 
@@ -70,9 +73,30 @@ class Submit(CreateAPIView):
                                    submission=sub)
 
 
+class SubmissionList(ListAPIView):
+    serializer_class = SubmissionListSerializer
+
+    def get_queryset(self):
+        try:
+            ques_id = self.kwargs['ques_id']
+            que = Question.objects.get(id=ques_id)
+            return Submission.objects.filter(user_id=self.request.user,
+                                             ques_id=que)
+        except Question.DoesNotExist:
+            raise exceptions.NotFound('No Submissions Found')
+
+
+class SubmissionStatus(RetrieveAPIView):
+    serializer_class = SubmissionSerializer
+    lookup_url_kwarg = 'id'
+    queryset = Submission.objects.all()
+    permission_classes = [IsRunInTime, IsRunSelf]
+
+
 class CallbackRunNow(APIView):
 
     def put(self, request):
+        print(request.data)
         run_submission = RunSubmission.objects.filter(
             judge0_token=request.data['token']).first()
         run_submission.stdout = request.data['stdout']
