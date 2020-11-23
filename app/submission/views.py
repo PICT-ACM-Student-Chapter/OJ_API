@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from question.models import Testcase, Question
 from rest_framework import exceptions
 from rest_framework.generics import CreateAPIView, RetrieveAPIView, \
-    ListCreateAPIView, ListAPIView
+    ListAPIView
 from rest_framework.views import APIView
 from submission.models import RunSubmission, Verdict, Submission
 from submission.permissions import IsRunInTime, IsRunSelf
@@ -53,7 +53,7 @@ class CheckRunStatus(RetrieveAPIView):
     permission_classes = [IsRunInTime, IsRunSelf]
 
 
-class Submit(ListCreateAPIView):
+class Submit(CreateAPIView):
     serializer_class = SubmissionSerializer
     permission_classes = [IsRunInTime]
 
@@ -90,7 +90,7 @@ class SubmissionStatus(RetrieveAPIView):
     serializer_class = SubmissionSerializer
     lookup_url_kwarg = 'id'
     queryset = Submission.objects.all()
-    permission_classes = [IsRunInTime, IsRunSelf]
+    permission_classes = [IsRunSelf]
 
 
 class CallbackRunNow(APIView):
