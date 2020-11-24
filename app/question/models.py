@@ -28,7 +28,7 @@ class Question(models.Model):
 
 
 class Testcase(models.Model):
-    id = models.IntegerField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     input = models.FileField(upload_to=upload_input_rename)
     output = models.FileField(upload_to=upload_output_rename)
     que_id = models.ForeignKey(Question, on_delete=models.CASCADE,
