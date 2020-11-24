@@ -3,14 +3,14 @@ import os
 
 from django.forms import model_to_dict
 from django.http import JsonResponse
-from question.models import Testcase, Question
 from rest_framework import exceptions
 from rest_framework.generics import CreateAPIView, RetrieveAPIView, \
     ListAPIView
 from rest_framework.views import APIView
+
+from question.models import Question
 from submission.models import RunSubmission, Verdict, Submission
 from submission.permissions import IsRunInTime, IsRunSelf
-
 from .judge0_utils import submit_to_run, submit_to_submit
 from .serializers import RunSubmissionSerializer, SubmissionSerializer, \
     SubmissionListSerializer
@@ -38,12 +38,13 @@ class Run(CreateAPIView):
     permission_classes = [IsRunInTime]
 
     def perform_create(self, serializer):
-        judge0_token = submit_to_run(
+        serializer.save(user_id=self.request.user)
+        submit_to_run(
             model_to_dict(serializer.validated_data['lang_id']),
             serializer.validated_data['code'],
             serializer.validated_data['stdin'],
-            os.environ['JUDGE0_RUN_CALLBACK_URL'])
-        serializer.save(user_id=self.request.user, judge0_token=judge0_token)
+            '{}/{}'.format(os.environ['JUDGE0_RUN_CALLBACK_URL'],
+                           serializer.data['id']))
 
 
 class CheckRunStatus(RetrieveAPIView):
@@ -58,19 +59,14 @@ class Submit(CreateAPIView):
     permission_classes = [IsRunInTime]
 
     def perform_create(self, serializer):
-        judge0_tokens = submit_to_submit(
+        sub = serializer.save(user_id=self.request.user)
+
+        submit_to_submit(
+            sub,
             model_to_dict(serializer.validated_data['lang_id']),
             serializer.validated_data['code'],
             serializer.validated_data['ques_id'],
-            'http://172.17.0.1:8000/submit/callback')
-
-        sub = serializer.save(user_id=self.request.user)
-
-        # created verdict objects
-        for x in judge0_tokens:
-            tc = Testcase.objects.get(id=x['test_case_id'])
-            Verdict.objects.create(judge0_token=x['token'], test_case=tc,
-                                   submission=sub)
+            os.environ['JUDGE0_SUBMIT_CALLBACK_URL'])
 
 
 class SubmissionList(ListAPIView):
@@ -95,10 +91,10 @@ class SubmissionStatus(RetrieveAPIView):
 
 class CallbackRunNow(APIView):
 
-    def put(self, request):
+    def put(self, request, sub_id):
         print(request.data)
         run_submission = RunSubmission.objects.filter(
-            judge0_token=request.data['token']).first()
+            id=sub_id).first()
         run_submission.stdout = request.data['stdout']
         run_submission.stderr = request.data['stderr'] or request.data[
             'message'] or request.data[
@@ -115,9 +111,10 @@ class CallbackRunNow(APIView):
 
 class CallbackSubmission(APIView):
 
-    def put(self, request):
+    def put(self, request, verdict_id):
+        print(request.data)
         verdict_submission = Verdict.objects.filter(
-            judge0_token=request.data['token']).first()
+            id=verdict_id).first()
         verdict_submission.stdout = request.data['stdout']
         verdict_submission.stderr = request.data['stderr'] or request.data[
             'message'] or request.data['compile_output'] or ''

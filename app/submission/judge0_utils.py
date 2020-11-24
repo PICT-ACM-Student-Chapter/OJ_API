@@ -2,8 +2,10 @@ import base64
 import os
 
 import requests
-from question.models import Testcase
 from rest_framework.status import HTTP_201_CREATED
+
+from question.models import Testcase
+from submission.models import Verdict
 
 
 def b64_encode(s):
@@ -36,7 +38,7 @@ def submit_to_run(lang, code, stdin, callback_url):
 
 
 #
-def submit_to_submit(lang, code, que_id, callback_url):
+def submit_to_submit(sub, lang, code, que_id, callback_url):
     url = '{}/submissions/batch?base64_encoded=true'.format(
         os.environ['JUDGE0_BASE_URL'])
     data = {
@@ -45,9 +47,9 @@ def submit_to_submit(lang, code, que_id, callback_url):
 
     # get testcases for the submission
     test_cases = Testcase.objects.filter(que_id=que_id)
-    res_data = []
 
     for tc in test_cases:
+        verdict = Verdict.objects.create(test_case=tc, submission=sub)
         sub_obj = {
             "source_code": code,
             "language_id": lang['judge0_lang_id'],
@@ -63,7 +65,7 @@ def submit_to_submit(lang, code, que_id, callback_url):
             "enable_per_process_and_thread_time_limit": False,
             "enable_per_process_and_thread_memory_limit": False,
             "max_file_size": lang['filesize_limit'],
-            "callback_url": callback_url
+            "callback_url": '{}/{}'.format(callback_url, verdict.id)
         }
 
         with tc.input.open('r') as f:
@@ -79,13 +81,6 @@ def submit_to_submit(lang, code, que_id, callback_url):
 
     res = requests.post(url, json=data)
     if res.status_code == HTTP_201_CREATED:
-        res_body = res.json()
-        for i, tc in enumerate(test_cases):
-            obj = {
-                "test_case_id": tc.id,
-                "token": res_body[i]['token']
-            }
-            res_data.append(obj)
-        return res_data
+        return
 
     raise Exception('Judge0 Error:', res)

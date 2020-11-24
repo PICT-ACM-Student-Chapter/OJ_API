@@ -43,14 +43,12 @@ class Verdict(models.Model):
     stderr = models.TextField(null=True, blank=True)
     exec_time = models.CharField(max_length=10, null=True)
     mem = models.CharField(max_length=10, null=True)
-    judge0_token = models.CharField(max_length=40)
 
 
 class RunSubmission(models.Model):
     id = models.AutoField(primary_key=True)
     code = models.TextField()
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
-    judge0_token = models.CharField(max_length=40)
     lang_id = models.ForeignKey(Language, on_delete=models.CASCADE)
     status = models.CharField(max_length=32, choices=STATUSES,
                               default=IN_QUEUE)
