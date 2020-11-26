@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.db import models
 
 # Create your models here.
@@ -20,7 +21,11 @@ class Contest(models.Model):
 class ContestQue(models.Model):
     contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    is_binary = models.BooleanField(default=False)
     order = models.IntegerField()
 
     class Meta:
         unique_together = ['contest', 'order']
+
+
+

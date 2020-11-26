@@ -1,3 +1,4 @@
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 
 
@@ -34,6 +35,8 @@ class Testcase(models.Model):
     que_id = models.ForeignKey(Question, on_delete=models.CASCADE,
                                related_name="test_cases")
     is_public = models.BooleanField(default=False)
+    weightage = models.IntegerField(
+        validators=[MinValueValidator(0), MaxValueValidator(10)], default=1)
 
     def __str__(self):
         return "{} - TC{}".format(self.que_id.name, self.id)

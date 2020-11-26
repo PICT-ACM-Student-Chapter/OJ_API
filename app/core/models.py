@@ -31,12 +31,30 @@ class UserContest(models.Model):
     contest_id = models.ForeignKey(Contest, on_delete=models.CASCADE)
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
     status = models.CharField(max_length=20, choices=STATUSES)
-    score = models.IntegerField(default=0)
+
+    # score = models.IntegerField(default=0)
 
     class Meta:
         indexes = [
             models.Index(fields=['contest_id', 'user_id', ]),
         ]
 
+
     def __str__(self):
         return "{}-{}".format(self.contest_id.name, self.user_id.username)
+
+
+class UserQuestion(models.Model):
+    que = models.ForeignKey(to='question.Question', on_delete=models.CASCADE,
+                            null=True)
+
+    user_contest = models.ForeignKey(UserContest, on_delete=models.CASCADE,
+                                     related_name='questions')
+    # sub = models.ForeignKey(to='submission.Submission',
+    #                         on_delete=models.CASCADE, null=True)
+    penalty = models.IntegerField(default=0)
+    score = models.IntegerField(default=0)
+
+    class Meta:
+        unique_together = ['user_contest', 'que']
+
