@@ -49,7 +49,6 @@ class UserProfile(RetrieveAPIView):
     serializer_class = UserSafeInfoSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
-    @method_decorator(cache_page(60 * 60 * 2))
-    def get(self, request, *args, **kwargs):
+    def retrieve(self, request, *args, **kwargs):
         user = UserSafeInfoSerializer(request.user)
         return JsonResponse(user.data)

@@ -10,7 +10,7 @@ from rest_framework.views import APIView
 
 from question.models import Question
 from submission.models import RunSubmission, Verdict, Submission
-from submission.permissions import IsRunInTime, IsRunSelf
+from submission.permissions import IsRunInTime, IsRunSelf, IsSubmissionInTime
 from .judge0_utils import submit_to_run, submit_to_submit
 from .serializers import RunSubmissionSerializer, SubmissionSerializer, \
     SubmissionListSerializer
@@ -56,7 +56,7 @@ class CheckRunStatus(RetrieveAPIView):
 
 class Submit(CreateAPIView):
     serializer_class = SubmissionSerializer
-    permission_classes = [IsRunInTime]
+    permission_classes = [IsSubmissionInTime]
 
     def perform_create(self, serializer):
         sub = serializer.save(user_id=self.request.user)
