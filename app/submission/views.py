@@ -8,6 +8,9 @@ from rest_framework.generics import CreateAPIView, RetrieveAPIView, \
     ListAPIView
 from rest_framework.views import APIView
 
+from app import settings
+from contest.models import ContestQue
+from core.models import UserQuestion
 from question.models import Question
 from submission.models import RunSubmission, Verdict, Submission
 from submission.permissions import IsRunInTime, IsRunSelf, IsSubmissionInTime
@@ -59,7 +62,8 @@ class Submit(CreateAPIView):
     permission_classes = [IsSubmissionInTime]
 
     def perform_create(self, serializer):
-        sub = serializer.save(user_id=self.request.user)
+        sub = serializer.save(user_id=self.request.user,
+                              contest=self.kwargs['contest_id'])
 
         submit_to_submit(
             sub,
@@ -69,6 +73,7 @@ class Submit(CreateAPIView):
             os.environ['JUDGE0_SUBMIT_CALLBACK_URL'])
 
 
+# TODO: Query with contest_id
 class SubmissionList(ListAPIView):
     serializer_class = SubmissionListSerializer
 
@@ -112,7 +117,6 @@ class CallbackRunNow(APIView):
 class CallbackSubmission(APIView):
 
     def put(self, request, verdict_id):
-        print(request.data)
         verdict_submission = Verdict.objects.filter(
             id=verdict_id).first()
         verdict_submission.stdout = request.data['stdout']
@@ -124,4 +128,67 @@ class CallbackSubmission(APIView):
         verdict_submission.status = STATUSES[status]
 
         verdict_submission.save()
+
+        # Calculate score for this submission
+        submission = verdict_submission.submission
+        verdicts = Verdict.objects.filter(submission=submission)
+        if verdicts.filter(status='IN_QUEUE').count() == 0:
+
+            if ContestQue.objects.filter(question=verdict_submission.question,
+                                         contest=submission.contest).first().is_binary:
+                # Binary
+                if verdicts.exclude(status='AC').count() == 0:
+                    submission.score = submission.ques_id.score
+                    submission.status = 'AC'
+                    submission.save()
+                    self.update_user_question(submission)
+                else:
+                    # TODO: Write logic for internal err
+                    if verdict_submission.status == 'CE':
+                        submission.status = 'CE'
+                    else:
+                        submission.status = 'WA'
+                    submission.save()
+            else:
+                # Partial
+                weight = 0
+                total_weight = 0
+                for v in verdicts:
+                    total_weight += v.test_case.weightage
+                    if v.status == 'AC':
+                        weight += v.test_case.weightage
+                score = (submission.ques_id.score * weight / total_weight)
+                submission.score = round(score, 2)
+
+                if (weight / total_weight) == 1:
+                    submission.status = 'AC'
+                elif verdict_submission.status == 'CE':
+                    submission.status = 'CE'
+                elif score == 0:
+                    submission.status = 'WA'
+                else:
+                    submission.status = 'PA'
+
+                submission.save()
+                self.update_user_question(submission)
+
         return JsonResponse({})
+
+    def update_user_question(self, sub):
+        # If sub status is AC already, pass
+        if sub.status == 'AC':
+            return
+
+        user_que = UserQuestion.objects.filter(que_id=sub.ques_id,
+                                               user_contest__user_id=sub.user_id,
+                                               user_contest__contest_id=sub.contest).first()
+        if user_que.score < sub.score:
+            user_que.score = sub.score
+            penalty = round(
+                (sub.created_at - sub.contest.start_time).total_seconds() / 60,
+                2)
+            penalty += settings.PENALTY_MINUTES * Submission.objects.filter(
+                status__in=['WA', 'PA'], ques_id=sub.ques_id,
+                contest=sub.contest, user_id=sub.user_id).count()
+            user_que.penalty = penalty
+            user_que.save()

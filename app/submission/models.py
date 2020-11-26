@@ -1,4 +1,5 @@
 # Create your models here.
+from contest.models import Contest
 from core.models import Language
 from django.contrib.auth.models import User
 from django.db import models
@@ -23,13 +24,27 @@ STATUSES = [
     ('EFE', 'Exec Format Error'),
 ]
 
+FINAL_STATUSES = [
+    ('IN_QUEUE', 'In Queue'),
+    ('AC', 'Accepted'),
+    ('PA', 'Partially Accepted'),
+    ('CE', 'Compilation Error'),
+    ('IE', 'Internal Error'),
+    ('WA', 'Anything else'),
+]
+
 
 class Submission(models.Model):
     id = models.AutoField(primary_key=True)
     code = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
     ques_id = models.ForeignKey(Question, on_delete=models.CASCADE)
     lang_id = models.ForeignKey(Language, on_delete=models.CASCADE)
+    contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
+    score = models.FloatField(default=0)
+    status = models.CharField(max_length=32, choices=FINAL_STATUSES,
+                              default=IN_QUEUE)
 
 
 class Verdict(models.Model):

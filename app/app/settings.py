@@ -250,3 +250,7 @@ CACHES = {
         }
     }
 }
+
+PENALTY_MINUTES = 10
+PENALTY_VERDICTS = ['WA', 'TLE', 'SIGSEGV', 'SIGXFSZ', 'SIGFPE', 'SIGABRT',
+                    'RTE', 'NZEC']

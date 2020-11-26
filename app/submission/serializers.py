@@ -34,7 +34,7 @@ class SubmissionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Submission
-        fields = ['id', 'code', 'lang_id', 'ques_id', 'verdicts']
+        fields = ['id', 'code', 'lang_id', 'ques_id', 'verdicts', 'contest']
         extra_kwargs = {
             'id': {'required': False, 'read_only': True},
             'verdicts': {'required': False, 'read_only': True},
