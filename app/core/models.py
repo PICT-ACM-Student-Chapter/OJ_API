@@ -1,7 +1,8 @@
-from contest.models import Contest
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator
 from django.db import models
+
+from contest.models import Contest
 
 User._meta.get_field('email')._unique = True
 
@@ -39,7 +40,6 @@ class UserContest(models.Model):
             models.Index(fields=['contest_id', 'user_id', ]),
         ]
 
-
     def __str__(self):
         return "{}-{}".format(self.contest_id.name, self.user_id.username)
 
@@ -57,4 +57,3 @@ class UserQuestion(models.Model):
 
     class Meta:
         unique_together = ['user_contest', 'que']
-

@@ -140,8 +140,10 @@ class CallbackSubmission(APIView):
         # (i.e. this is last verdict of the submission)
         if verdicts.filter(status='IN_QUEUE').count() == 0:
             # Update submission object
-            if ContestQue.objects.filter(question=submission.ques_id,
-                                         contest=submission.contest).first().is_binary:
+            if ContestQue.objects.filter(
+                    question=submission.ques_id,
+                    contest=submission.contest
+            ).first().is_binary:
                 # Binary
                 if verdicts.exclude(status='AC').count() == 0:
                     # All ACs
@@ -183,23 +185,29 @@ class CallbackSubmission(APIView):
 
     def update_user_question(self, sub):
 
-        user_ques = UserQuestion.objects.filter(que=sub.ques_id,
-                                                user_contest__user_id=sub.user_id,
-                                                user_contest__contest_id=sub.contest)
+        user_ques = UserQuestion.objects.filter(
+            que=sub.ques_id,
+            user_contest__user_id=sub.user_id,
+            user_contest__contest_id=sub.contest
+        )
 
         if not user_ques.exists():
             # UserQue doesn't exists, so create one
-            user_contest = UserContest.objects.filter(user_id=sub.user_id,
-                                                      contest_id=sub.contest).first()
-            print(type(sub.ques_id), sub.ques_id)
-            user_que = UserQuestion.objects.create(que=sub.ques_id,
-                                                   user_contest=user_contest)
+            user_contest = UserContest.objects.filter(
+                user_id=sub.user_id,
+                contest_id=sub.contest
+            ).first()
+
+            user_que = UserQuestion.objects.create(
+                que=sub.ques_id,
+                user_contest=user_contest
+            )
         else:
             # UserQue exists, so select the first
             user_que = user_ques.first()
 
         # If UserQue score is less than or equal to que score already,
-        # no need to update as only best one with min time-penalty is considered
+        # no need to update (only best one with min time-penalty is considered)
         if sub.score <= user_que.score:
             return
 
@@ -207,12 +215,15 @@ class CallbackSubmission(APIView):
         user_que.score = sub.score
 
         # Time penalty
-        penalty = round(
-            (sub.created_at - sub.contest.start_time).seconds/60,
-            2)
+        time_penalty = (sub.created_at - sub.contest.start_time).seconds / 60
+        time_penalty = round(time_penalty, 2)
         # WA penalty
-        penalty += settings.PENALTY_MINUTES * Submission.objects.filter(
+        no_of_wa = Submission.objects.filter(
             status__in=['WA', 'PA'], ques_id=sub.ques_id,
-            contest=sub.contest, user_id=sub.user_id).count()
-        user_que.penalty = penalty
+            contest=sub.contest, user_id=sub.user_id
+        ).count()
+        wa_penalty = settings.PENALTY_MINUTES * no_of_wa
+
+        # Total penalty
+        user_que.penalty = (time_penalty + wa_penalty)
         user_que.save()

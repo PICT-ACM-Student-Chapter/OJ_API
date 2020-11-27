@@ -4,6 +4,7 @@ from django.contrib import admin
 from django.db import models
 from django.utils.html import format_html
 from martor.widgets import AdminMartorWidget
+
 from submission.models import Submission, Verdict, RunSubmission
 
 
@@ -14,7 +15,8 @@ class VerdictInline(admin.TabularInline):
 
 
 class SubmissionModelAdmin(admin.ModelAdmin):
-    fields = ['user_id', 'ques_id', 'lang_id', 'score', 'status', 'contest', 'user_code', 'code']
+    fields = ['user_id', 'ques_id', 'lang_id', 'score', 'status', 'contest',
+              'user_code', 'code']
     formfield_overrides = {
         models.TextField: {'widget': AdminMartorWidget},
     }
