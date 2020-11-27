@@ -21,3 +21,4 @@ class UserContestAdmin(admin.ModelAdmin):
 
 admin.site.register(Language)
 admin.site.register(UserContest, UserContestAdmin)
+admin.site.register(UserQuestion)

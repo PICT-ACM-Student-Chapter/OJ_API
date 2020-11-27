@@ -52,8 +52,8 @@ class UserQuestion(models.Model):
                                      related_name='questions')
     # sub = models.ForeignKey(to='submission.Submission',
     #                         on_delete=models.CASCADE, null=True)
-    penalty = models.IntegerField(default=0)
-    score = models.IntegerField(default=0)
+    penalty = models.FloatField(default=0)
+    score = models.FloatField(default=0)
 
     class Meta:
         unique_together = ['user_contest', 'que']

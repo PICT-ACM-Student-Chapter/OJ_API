@@ -9,8 +9,8 @@ from rest_framework.generics import CreateAPIView, RetrieveAPIView, \
 from rest_framework.views import APIView
 
 from app import settings
-from contest.models import ContestQue
-from core.models import UserQuestion
+from contest.models import ContestQue, Contest
+from core.models import UserQuestion, UserContest
 from question.models import Question
 from submission.models import RunSubmission, Verdict, Submission
 from submission.permissions import IsRunInTime, IsRunSelf, IsSubmissionInTime
@@ -62,14 +62,17 @@ class Submit(CreateAPIView):
     permission_classes = [IsSubmissionInTime]
 
     def perform_create(self, serializer):
-        sub = serializer.save(user_id=self.request.user,
-                              contest=self.kwargs['contest_id'])
+        contest = Contest.objects.filter(id=self.kwargs['contest_id']).first()
+        question = Question.objects.filter(id=self.kwargs['ques_id']).first()
+
+        sub = serializer.save(user_id=self.request.user, contest=contest,
+                              ques_id=question)
 
         submit_to_submit(
             sub,
             model_to_dict(serializer.validated_data['lang_id']),
             serializer.validated_data['code'],
-            serializer.validated_data['ques_id'],
+            question,
             os.environ['JUDGE0_SUBMIT_CALLBACK_URL'])
 
 
@@ -117,6 +120,7 @@ class CallbackRunNow(APIView):
 class CallbackSubmission(APIView):
 
     def put(self, request, verdict_id):
+        # Save the verdict
         verdict_submission = Verdict.objects.filter(
             id=verdict_id).first()
         verdict_submission.stdout = request.data['stdout']
@@ -126,24 +130,27 @@ class CallbackSubmission(APIView):
         verdict_submission.mem = request.data['memory']
         status = request.data['status']['id']
         verdict_submission.status = STATUSES[status]
-
         verdict_submission.save()
 
-        # Calculate score for this submission
+        # Get submission object and all verdict object for the submission
         submission = verdict_submission.submission
         verdicts = Verdict.objects.filter(submission=submission)
-        if verdicts.filter(status='IN_QUEUE').count() == 0:
 
-            if ContestQue.objects.filter(question=verdict_submission.question,
+        # Check if there are no verdicts in queue
+        # (i.e. this is last verdict of the submission)
+        if verdicts.filter(status='IN_QUEUE').count() == 0:
+            # Update submission object
+            if ContestQue.objects.filter(question=submission.ques_id,
                                          contest=submission.contest).first().is_binary:
                 # Binary
                 if verdicts.exclude(status='AC').count() == 0:
+                    # All ACs
                     submission.score = submission.ques_id.score
                     submission.status = 'AC'
                     submission.save()
-                    self.update_user_question(submission)
+                    self.update_user_question(submission)  # TODO: change name
                 else:
-                    # TODO: Write logic for internal err
+                    # TODO: Write logic for internal err and CE
                     if verdict_submission.status == 'CE':
                         submission.status = 'CE'
                     else:
@@ -164,7 +171,7 @@ class CallbackSubmission(APIView):
                     submission.status = 'AC'
                 elif verdict_submission.status == 'CE':
                     submission.status = 'CE'
-                elif score == 0:
+                elif weight == 0:
                     submission.status = 'WA'
                 else:
                     submission.status = 'PA'
@@ -175,20 +182,37 @@ class CallbackSubmission(APIView):
         return JsonResponse({})
 
     def update_user_question(self, sub):
-        # If sub status is AC already, pass
-        if sub.status == 'AC':
+
+        user_ques = UserQuestion.objects.filter(que=sub.ques_id,
+                                                user_contest__user_id=sub.user_id,
+                                                user_contest__contest_id=sub.contest)
+
+        if not user_ques.exists():
+            # UserQue doesn't exists, so create one
+            user_contest = UserContest.objects.filter(user_id=sub.user_id,
+                                                      contest_id=sub.contest).first()
+            print(type(sub.ques_id), sub.ques_id)
+            user_que = UserQuestion.objects.create(que=sub.ques_id,
+                                                   user_contest=user_contest)
+        else:
+            # UserQue exists, so select the first
+            user_que = user_ques.first()
+
+        # If UserQue score is less than or equal to que score already,
+        # no need to update as only best one with min time-penalty is considered
+        if sub.score <= user_que.score:
             return
 
-        user_que = UserQuestion.objects.filter(que_id=sub.ques_id,
-                                               user_contest__user_id=sub.user_id,
-                                               user_contest__contest_id=sub.contest).first()
-        if user_que.score < sub.score:
-            user_que.score = sub.score
-            penalty = round(
-                (sub.created_at - sub.contest.start_time).total_seconds() / 60,
-                2)
-            penalty += settings.PENALTY_MINUTES * Submission.objects.filter(
-                status__in=['WA', 'PA'], ques_id=sub.ques_id,
-                contest=sub.contest, user_id=sub.user_id).count()
-            user_que.penalty = penalty
-            user_que.save()
+        # Score improved, update UserQue
+        user_que.score = sub.score
+
+        # Time penalty
+        penalty = round(
+            (sub.created_at - sub.contest.start_time).seconds/60,
+            2)
+        # WA penalty
+        penalty += settings.PENALTY_MINUTES * Submission.objects.filter(
+            status__in=['WA', 'PA'], ques_id=sub.ques_id,
+            contest=sub.contest, user_id=sub.user_id).count()
+        user_que.penalty = penalty
+        user_que.save()

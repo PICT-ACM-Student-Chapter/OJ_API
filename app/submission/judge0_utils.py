@@ -31,9 +31,9 @@ def submit_to_run(lang, code, stdin, callback_url):
         "max_file_size": lang['filesize_limit'],
         "callback_url": callback_url
     }
-    res = requests.post(url, json=data).json()
-    if 'token' in res:
-        return res['token']
+    res = requests.post(url, json=data)
+    if res.status_code == HTTP_201_CREATED and 'token' in res.json():
+        return res.json()['token']
     raise Exception('Judge0 Error:', res)
 
 

@@ -42,5 +42,5 @@ class UserContestSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserContest
-        fields = ['id', 'contest_id', 'status', 'score']
+        fields = ['id', 'contest_id', 'status']
         depth = 2

@@ -14,7 +14,7 @@ class VerdictInline(admin.TabularInline):
 
 
 class SubmissionModelAdmin(admin.ModelAdmin):
-    fields = ['user_id', 'ques_id', 'lang_id', 'contest', 'user_code', 'code']
+    fields = ['user_id', 'ques_id', 'lang_id', 'score', 'status', 'contest', 'user_code', 'code']
     formfield_overrides = {
         models.TextField: {'widget': AdminMartorWidget},
     }

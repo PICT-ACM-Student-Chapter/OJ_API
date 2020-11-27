@@ -38,7 +38,8 @@ class SubmissionSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'id': {'required': False, 'read_only': True},
             'verdicts': {'required': False, 'read_only': True},
-
+            'contest': {'required': False, 'read_only': True},
+            'ques_id': {'required': False, 'read_only': True}
         }
 
 
