@@ -3,8 +3,8 @@ from django.urls import path
 from submission.views import SubmissionStatus, Submit, SubmissionList
 
 urlpatterns = [
-    path('<int:id>/start', StartContest.as_view()),
-    path('<int:id>', ContestDetails.as_view()),
+    path('<str:id>/start', StartContest.as_view()),
+    path('<str:id>', ContestDetails.as_view()),
     path('<str:contest_id>/questions/<str:ques_id>/submit',
          Submit.as_view()),
     path('<str:contest_id>/questions/<str:ques_id>/submit/<int:id>',

@@ -157,7 +157,9 @@ class CallbackSubmission(APIView):
                         submission.status = 'CE'
                     else:
                         submission.status = 'WA'
+                        print('helllo', flush=True)
                     submission.save()
+                    self.update_user_question(submission)
             else:
                 # Partial
                 weight = 0
@@ -184,7 +186,7 @@ class CallbackSubmission(APIView):
         return JsonResponse({})
 
     def update_user_question(self, sub):
-
+        print('helllo',flush=True)
         user_ques = UserQuestion.objects.filter(
             que=sub.ques_id,
             user_contest__user_id=sub.user_id,
@@ -208,6 +210,10 @@ class CallbackSubmission(APIView):
 
         # If UserQue score is less than or equal to que score already,
         # no need to update (only best one with min time-penalty is considered)
+
+        # WHEN SUBMITTED FIRST WA PENALTY WAS NOT ADDDED,
+        # SO WHEN 2 PEOPLE WILL HAVE WAs FOR A QUESTION THEN PENALTIES
+        # SHOULD PE CONSIDERED
         if sub.score <= user_que.score:
             return
 

@@ -21,8 +21,8 @@ services:
       - DB_USER=postgres
       - DB_PASS=postgres
       - JUDGE0_BASE_URL=http://172.17.0.1:3000
-      - JUDGE0_RUN_CALLBACK_URL=http://172.17.0.1:8000/run/callback
-      - JUDGE0_SUBMIT_CALLBACK_URL=http://172.17.0.1:8000/submit/callback
+      - JUDGE0_RUN_CALLBACK_URL=http://172.17.0.1:8000/callback/run
+      - JUDGE0_SUBMIT_CALLBACK_URL=http://172.17.0.1:8000/callback/submit
     env_file:
       - .env
     depends_on:
