@@ -21,6 +21,7 @@ class ContestQue(models.Model):
     contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     is_binary = models.BooleanField(default=False)
+    is_reverse_coding = models.BooleanField(default=False)
     order = models.IntegerField()
 
     class Meta:

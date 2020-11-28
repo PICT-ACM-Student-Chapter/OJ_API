@@ -23,6 +23,9 @@ class Question(models.Model):
     input_format = models.TextField(default="")
     output_format = models.TextField(default="")
     constraints = models.TextField(default="")
+    correct_code = models.TextField(blank=True, null=True)
+    correct_code_lang = models.ForeignKey(to='core.Language', null=True,
+                                          on_delete=models.SET_NULL)
 
     def __str__(self):
         return "{} - ID{}".format(self.name, self.id)

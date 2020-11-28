@@ -1,24 +1,32 @@
-from contest.models import Contest, ContestQue
-from core.models import UserContest
-from core.models import UserQuestion
 from django.db.models import Sum
 from rest_framework import serializers
 
+from contest.models import Contest, ContestQue
+from core.models import UserContest
+from core.models import UserQuestion
 from core.serializers import UserSafeInfoSerializer
+from question.models import Question
+
+
+class QuestionListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Question
+        fields = ['id', 'name', 'score']
 
 
 class ContestQueSerializer(serializers.ModelSerializer):
+    question = QuestionListSerializer(read_only=True)
+
     class Meta:
         model = ContestQue
-        fields = ['order', 'question']
-        depth = 2
+        fields = ['order', 'question', 'is_reverse_coding', 'is_binary']
 
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        que_repr = representation.pop('question')
-        for key in que_repr:
-            representation[key] = que_repr[key]
-        return representation
+    # def to_representation(self, instance):
+    #     representation = super().to_representation(instance)
+    #     que_repr = representation.pop('question')
+    #     for key in que_repr:
+    #         representation[key] = que_repr[key]
+    #     return representation
 
 
 class ContestSerializer(serializers.ModelSerializer):

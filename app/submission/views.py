@@ -1,22 +1,22 @@
 # Create your views here.
 import os
 
+from contest.models import ContestQue, Contest
+from core.models import UserQuestion, UserContest
 from django.forms import model_to_dict
 from django.http import JsonResponse
+from question.models import Question
 from rest_framework import exceptions
 from rest_framework.generics import CreateAPIView, RetrieveAPIView, \
     ListAPIView
 from rest_framework.views import APIView
-
-from app import settings
-from contest.models import ContestQue, Contest
-from core.models import UserQuestion, UserContest
-from question.models import Question
 from submission.models import RunSubmission, Verdict, Submission
 from submission.permissions import IsRunInTime, IsRunSelf, IsSubmissionInTime
+
+from app import settings
 from .judge0_utils import submit_to_run, submit_to_submit
 from .serializers import RunSubmissionSerializer, SubmissionSerializer, \
-    SubmissionListSerializer
+    SubmissionListSerializer, RunRCSerializer
 
 STATUSES = {
     1: 'IN_QUEUE',
@@ -45,6 +45,32 @@ class Run(CreateAPIView):
         submit_to_run(
             model_to_dict(serializer.validated_data['lang_id']),
             serializer.validated_data['code'],
+            serializer.validated_data['stdin'],
+            '{}/{}'.format(os.environ['JUDGE0_RUN_CALLBACK_URL'],
+                           serializer.data['id']))
+
+
+class RunRC(CreateAPIView):
+    serializer_class = RunRCSerializer
+    permission_classes = [IsSubmissionInTime]
+
+    def perform_create(self, serializer):
+        contest_que = ContestQue.objects.filter(
+            contest__id=self.kwargs['contest_id'],
+            question__id=self.kwargs['ques_id'],
+            is_reverse_coding=True
+        )
+        if not contest_que.exists():
+            raise exceptions.NotFound('No Question Found')
+        serializer.save(user_id=self.request.user, code='TkE=',
+                        lang_id=contest_que.first().question.correct_code_lang)  # 'NA' b64
+        code = contest_que.first().question.correct_code
+        lang = contest_que.first().question.correct_code_lang
+        print(type(lang))
+
+        submit_to_run(
+            model_to_dict(lang),
+            code,
             serializer.validated_data['stdin'],
             '{}/{}'.format(os.environ['JUDGE0_RUN_CALLBACK_URL'],
                            serializer.data['id']))
@@ -186,7 +212,7 @@ class CallbackSubmission(APIView):
         return JsonResponse({})
 
     def update_user_question(self, sub):
-        print('helllo',flush=True)
+        print('helllo', flush=True)
         user_ques = UserQuestion.objects.filter(
             que=sub.ques_id,
             user_contest__user_id=sub.user_id,
