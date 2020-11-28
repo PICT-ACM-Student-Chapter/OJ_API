@@ -1,7 +1,10 @@
-from rest_framework import serializers
-
 from contest.models import Contest, ContestQue
 from core.models import UserContest
+from core.models import UserQuestion
+from django.db.models import Sum
+from rest_framework import serializers
+
+from core.serializers import UserSafeInfoSerializer
 
 
 class ContestQueSerializer(serializers.ModelSerializer):
@@ -19,16 +22,28 @@ class ContestQueSerializer(serializers.ModelSerializer):
 
 
 class ContestSerializer(serializers.ModelSerializer):
-    questions = serializers.SerializerMethodField(read_only=True)
+
+    def get_total_score(self, model):
+        user = None
+        request = self.context.get("request")
+        if request and hasattr(request, "user"):
+            user = request.user
+        user_contest = UserContest.objects.filter(user_id=user).first()
+        user_ques = UserQuestion.objects.filter(user_contest=user_contest)
+        total_sum = user_ques.aggregate(Sum('score'))
+        return total_sum['score__sum']
 
     def get_questions(self, model):
         return ContestQueSerializer(
             ContestQue.objects.filter(contest_id=model.id), many=True).data
 
+    total_score = serializers.SerializerMethodField(read_only=True)
+    questions = serializers.SerializerMethodField(read_only=True)
+
     class Meta:
         model = Contest
         fields = ['id', 'name', 'start_time', 'end_time', 'instructions',
-                  'questions']
+                  'total_score', 'questions']
 
 
 class ContestListSerializer(serializers.ModelSerializer):
@@ -44,3 +59,18 @@ class UserContestSerializer(serializers.ModelSerializer):
         model = UserContest
         fields = ['id', 'contest_id', 'status']
         depth = 2
+
+
+class UserQuestionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserQuestion
+        fields = ['que_id', 'score', 'penalty']
+
+
+class LeaderBoardSerializer(serializers.ModelSerializer):
+    questions = UserQuestionSerializer(read_only=True, many=True)
+    user_id = UserSafeInfoSerializer(read_only=True)
+
+    class Meta:
+        model = UserContest
+        fields = ['user_id', 'total_score', 'total_penalty', 'questions']

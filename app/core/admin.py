@@ -11,7 +11,8 @@ class UserQuestionInline(admin.TabularInline):
 
 
 class UserContestAdmin(admin.ModelAdmin):
-    list_display = ('contest_id', 'user_id', 'status')
+    list_display = (
+        'contest_id', 'user_id', 'status', 'total_score', 'total_penalty')
     list_filter = ('contest_id', 'user_id', 'status')
     search_fields = ('contest_id', 'user_id')
     inlines = [

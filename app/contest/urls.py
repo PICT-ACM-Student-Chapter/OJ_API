@@ -1,4 +1,4 @@
-from contest.views import ContestList, ContestDetails, StartContest
+from contest.views import ContestList, ContestDetails, StartContest, LeaderBoard
 from django.urls import path
 from submission.views import SubmissionStatus, Submit, SubmissionList
 
@@ -11,6 +11,6 @@ urlpatterns = [
          SubmissionStatus.as_view()),
     path('<str:contest_id>/questions/<str:ques_id>/submissions',
          SubmissionList.as_view()),
-
+    path('<str:contest_id>/leaderboard', LeaderBoard.as_view()),
     path('', ContestList.as_view()),
 ]

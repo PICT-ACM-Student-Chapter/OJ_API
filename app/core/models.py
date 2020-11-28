@@ -1,8 +1,8 @@
+from contest.models import Contest
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator
 from django.db import models
-
-from contest.models import Contest
+from django.db.models import Sum
 
 User._meta.get_field('email')._unique = True
 
@@ -34,6 +34,17 @@ class UserContest(models.Model):
     status = models.CharField(max_length=20, choices=STATUSES)
 
     # score = models.IntegerField(default=0)
+    @property
+    def total_score(self):
+        user_ques = UserQuestion.objects.filter(user_contest=self)
+        total_sum = user_ques.aggregate(Sum('score'))
+        return total_sum['score__sum'] or 0.0
+
+    @property
+    def total_penalty(self):
+        user_ques = UserQuestion.objects.filter(user_contest=self)
+        total_sum = user_ques.aggregate(Sum('penalty'))
+        return total_sum['penalty__sum'] or 0.0
 
     class Meta:
         indexes = [
