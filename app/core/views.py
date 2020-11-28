@@ -3,8 +3,7 @@ import datetime
 from core.models import Language
 from core.serializers import LanguageSerializer
 from core.serializers import UserRegisterSerializer, UserSafeInfoSerializer
-from django.conf import settings
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseRedirect
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from rest_framework import generics
@@ -33,9 +32,8 @@ class ServerTime(APIView):
 class Version(APIView):
     authentication_classes = []
 
-    @method_decorator(cache_page(60 * 60 * 2))
     def get(self, request, *args, **kwargs):
-        return Response({"version": settings.VERSION})
+        return HttpResponseRedirect(redirect_to='/swagger')
 
 
 # Create your views here.

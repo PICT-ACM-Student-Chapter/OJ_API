@@ -50,9 +50,9 @@ urlpatterns = [
                   path('admin/', admin.site.urls),
                   path('martor/', include('martor.urls')),
                   path('__debug__/', include(debug_toolbar.urls)),
-                  path('contests', include('contest.urls')),
+                  path('contests/', include('contest.urls')),
                   path('', include('core.urls')),
-                  path('questions', include('question.urls')),
+                  path('questions/', include('question.urls')),
                   path('', include('submission.urls')),
 
               ] + static(settings.STATIC_URL,
