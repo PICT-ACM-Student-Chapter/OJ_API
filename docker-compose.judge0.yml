@@ -8,12 +8,12 @@ x-logging:
       max-size: 100m
 
 services:
-  server:
+  judge0:
     image: judge0/judge0:latest
     volumes:
-      - ./judge0.env:/judge0.env:ro
+      - ./judge0.conf:/judge0.conf:ro
     ports:
-      - "80:3000"
+      - "3000:3000"
     privileged: true
     <<: *default-logging
     restart: always
@@ -22,14 +22,14 @@ services:
     image: judge0/judge0:latest
     command: [ "./scripts/workers" ]
     volumes:
-      - ./judge0.env:/judge0.env:ro
+      - ./judge0.conf:/judge0.conf:ro
     privileged: true
     <<: *default-logging
     restart: always
 
   db:
     image: postgres:alpine
-    env_file: judge0.env
+    env_file: judge0.conf
     volumes:
       - postgres-data:/var/lib/postgresql/data/
     <<: *default-logging
@@ -38,10 +38,10 @@ services:
   redis:
     image: redis:alpine
     command: [
-        "bash", "-c",
+        "sh", "-c",
         'docker-entrypoint.sh --appendonly yes --requirepass "$$REDIS_PASSWORD"'
     ]
-    env_file: judge0.env
+    env_file: judge0.conf
     volumes:
       - redis-data:/data
     <<: *default-logging

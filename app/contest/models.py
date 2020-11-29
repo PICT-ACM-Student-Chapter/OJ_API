@@ -13,10 +13,15 @@ class Contest(models.Model):
     questions = models.ManyToManyField(to=Question, related_name='contests',
                                        through='ContestQue')
 
+    def __str__(self):
+        return "{} (ID{})".format(self.name, self.id)
+
 
 class ContestQue(models.Model):
     contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    is_binary = models.BooleanField(default=False)
+    is_reverse_coding = models.BooleanField(default=False)
     order = models.IntegerField()
 
     class Meta:

@@ -30,6 +30,7 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    'jet',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -45,7 +46,8 @@ INSTALLED_APPS = [
     'core',
     'contest',
     'question',
-    'submission'
+    'submission',
+    'redisboard'
 ]
 
 MIDDLEWARE = [
@@ -136,6 +138,10 @@ CORS_ORIGIN_ALLOW_ALL = True
 
 INTERNAL_IPS = ('127.0.0.1',)
 
+# ADMIN PANEL
+
+X_FRAME_OPTIONS = 'SAMEORIGIN'
+
 # Choices are: "semantic", "bootstrap"
 MARTOR_THEME = 'semantic'
 
@@ -164,8 +170,8 @@ MARTOR_TOOLBAR_BUTTONS = [
 MARTOR_ENABLE_LABEL = False
 
 # Imgur API Keys
-MARTOR_IMGUR_CLIENT_ID = 'your-client-id'
-MARTOR_IMGUR_API_KEY = 'your-api-key'
+MARTOR_IMGUR_CLIENT_ID = os.environ.get('MARTOR_IMGUR_CLIENT_ID')
+MARTOR_IMGUR_API_KEY = os.environ.get('MARTOR_IMGUR_API_KEY')
 
 # Markdownify
 MARTOR_MARKDOWNIFY_FUNCTION = 'martor.utils.markdownify'  # default
@@ -205,7 +211,8 @@ AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
 AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
 AWS_S3_REGION_NAME = os.environ.get('AWS_S3_REGION_NAME')
-AWS_S3_ADDRESSING_STYLE = "virtual"  # Required to generate signed URLs for getting files in Admin Panel and DRF
+AWS_S3_ADDRESSING_STYLE = "virtual"  # Required to generate signed URLs for
+# getting files in Admin Panel and DRF
 
 VERSION = '0.0.1a'
 
@@ -216,7 +223,9 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
+    ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 50
 }
 
 SIMPLE_JWT = {
@@ -233,3 +242,17 @@ SWAGGER_SETTINGS = {
         }
     }
 }
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://redis:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "PASSWORD": "YourPasswordHere1234"
+        }
+    }
+}
+
+PENALTY_MINUTES = 10
+PENALTY_VERDICTS = ['WA', 'TLE', 'SIGSEGV', 'SIGXFSZ', 'SIGFPE', 'SIGABRT',
+                    'RTE', 'NZEC']

@@ -46,11 +46,14 @@ urlpatterns = [
                   url(r'^redoc/$', schema_view.with_ui('redoc',
                                                        cache_timeout=0),
                       name='schema-redoc'),
+                  url(r'^jet/', include('jet.urls', 'jet')),
                   path('admin/', admin.site.urls),
                   path('martor/', include('martor.urls')),
                   path('__debug__/', include(debug_toolbar.urls)),
-                  path('contests', include('contest.urls')),
+                  path('contests/', include('contest.urls')),
                   path('', include('core.urls')),
-                  path('questions', include('question.urls')),
+                  path('questions/', include('question.urls')),
+                  path('', include('submission.urls')),
+
               ] + static(settings.STATIC_URL,
                          document_root=settings.STATIC_ROOT)

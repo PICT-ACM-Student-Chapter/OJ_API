@@ -1,41 +1,44 @@
 import datetime
 
 import pytz
+from core.models import UserContest
 from rest_framework import permissions
 
-from core.models import UserContest
 
-
-# TODO: Check if this can be moved to 'core' app
-class IsAllowedInContest(permissions.BasePermission):
+class IsRunSelf(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        return UserContest.objects.filter(user_id=request.user.id,
-                                          contest_id=obj.id
-                                          ).count() > 0
+        return obj.user_id == request.user
 
 
-# TODO: Derive from base IsInTime class
-class IsInTime(permissions.BasePermission):
+class IsRunInTime(permissions.BasePermission):
     message = "Access denied. Reason: outside contest time"
 
     def has_permission(self, request, view):
         curr_time = datetime.datetime.now(tz=pytz.UTC)
+        # Allow run if any contest a user is registered for is running
         return UserContest.objects.filter(
-            contest_id__id=view.kwargs['id'],
+            user_id=request.user.id,
             contest_id__start_time__lte=curr_time,
             contest_id__end_time__gte=curr_time,
             status='STARTED'
         ).count() > 0
 
 
-class IsStartInTime(permissions.BasePermission):
+class IsSubmissionInTime(permissions.BasePermission):
     message = "Access denied. Reason: outside contest time"
 
     def has_permission(self, request, view):
         curr_time = datetime.datetime.now(tz=pytz.UTC)
+        # Allow run if any contest a user is registered for is running
+
+        ques_id = view.kwargs['ques_id']
+        contest_id = view.kwargs['contest_id']
+
         return UserContest.objects.filter(
-            contest_id__id=view.kwargs['id'],
+            user_id=request.user.id,
+            contest_id__id=contest_id,
+            contest_id__questions__id=ques_id,
             contest_id__start_time__lte=curr_time,
             contest_id__end_time__gte=curr_time,
-            status='REGISTERED'
+            status='STARTED'
         ).count() > 0
