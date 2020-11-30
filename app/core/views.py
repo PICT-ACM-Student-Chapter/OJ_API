@@ -2,7 +2,7 @@ import datetime
 
 from core.models import Language
 from core.serializers import LanguageSerializer
-from core.serializers import UserRegisterSerializer, UserSafeInfoSerializer
+#from core.serializers import UserRegisterSerializer, UserSafeInfoSerializer
 from django.http import JsonResponse, HttpResponseRedirect
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
@@ -38,15 +38,15 @@ class Version(APIView):
 
 # Create your views here.
 
-class Register(CreateAPIView):
-    serializer_class = UserRegisterSerializer
-    permission_classes = (permissions.AllowAny,)
-
-
-class UserProfile(RetrieveAPIView):
-    serializer_class = UserSafeInfoSerializer
-    permission_classes = (permissions.IsAuthenticated,)
-
-    def retrieve(self, request, *args, **kwargs):
-        user = UserSafeInfoSerializer(request.user)
-        return JsonResponse(user.data)
+# class Register(CreateAPIView):
+#     serializer_class = UserRegisterSerializer
+#     permission_classes = (permissions.AllowAny,)
+#
+#
+# class UserProfile(RetrieveAPIView):
+#     serializer_class = UserSafeInfoSerializer
+#     permission_classes = (permissions.IsAuthenticated,)
+#
+#     def retrieve(self, request, *args, **kwargs):
+#         user = UserSafeInfoSerializer(request.user)
+#         return JsonResponse(user.data)

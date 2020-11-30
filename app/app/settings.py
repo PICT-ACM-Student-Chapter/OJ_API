@@ -47,7 +47,8 @@ INSTALLED_APPS = [
     'contest',
     'question',
     'submission',
-    'redisboard'
+    'redisboard',
+    'djoser',
 ]
 
 MIDDLEWARE = [
@@ -112,6 +113,38 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+SIMPLE_JWT = {
+   'AUTH_HEADER_TYPES': ('JWT',),
+}
+
+# DJOSER = {
+#     'USER_ID_FIELD' :
+#     'LOGIN_FIELD' :
+#     'PASSWORD_RESET_CONFIRM_URL' :
+#     'USERNAME_RESET_CONFIRM_URL' :
+#     'SEND_ACTIVATION_EMAIL' :
+#     'SEND_CONFIRMATION_EMAIL' :
+#     'PASSWORD_CHANGED_EMAIL_CONFIRMATION' :
+#     'USERNAME_CHANGED_EMAIL_CONFIRMATION' :
+#     'ACTIVATION_URL' :
+#     'USER_CREATE_PASSWORD_RETYPE' :
+#     'SET_USERNAME_RETYPE' :
+#     'SET_PASSWORD_RETYPE' :
+#     'PASSWORD_RESET_CONFIRM_RETYPE' :
+#     'USERNAME_RESET_CONFIRM_RETYPE' :
+#     'LOGOUT_ON_PASSWORD_CHANGE' :
+#     'PASSWORD_RESET_SHOW_EMAIL_NOT_FOUND' :
+#     'USERNAME_RESET_SHOW_EMAIL_NOT_FOUND' :
+#     'TOKEN_MODEL' :
+#     'SERIALIZERS' :
+#     'EMAIL' :
+#     'CONSTANTS' :
+#     'SOCIAL_AUTH_TOKEN_STRATEGY' :
+#     'SOCIAL_AUTH_ALLOWED_REDIRECT_URIS' :
+#     'PERMISSIONS' :
+#     'HIDE_USERS' :
+# }
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
