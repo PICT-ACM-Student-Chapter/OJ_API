@@ -23,4 +23,4 @@ class IsInTime(permissions.BasePermission):
             contest_id__start_time__lte=curr_time,
             contest_id__end_time__gte=curr_time,
             status='STARTED'
-            ).count() > 0
+        ).count() > 0

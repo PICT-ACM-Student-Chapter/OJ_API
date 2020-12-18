@@ -1,10 +1,10 @@
-from core.views import Register, UserProfile
 from django.urls import path, include
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
 
+from core.views import Register, UserProfile
 from .views import LanguageList, ServerTime, Version
 
 urlpatterns = [

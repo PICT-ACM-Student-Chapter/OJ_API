@@ -1,8 +1,9 @@
 # Create your models here.
-from contest.models import Contest
-from core.models import Language
 from django.contrib.auth.models import User
 from django.db import models
+
+from contest.models import Contest
+from core.models import Language
 from question.models import Question, Testcase
 
 IN_QUEUE = 'IN_QUEUE'

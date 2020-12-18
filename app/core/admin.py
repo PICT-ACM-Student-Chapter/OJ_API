@@ -1,6 +1,7 @@
 # Register your models here.
-from core.models import Language, UserContest, UserQuestion
 from django.contrib import admin
+
+from core.models import Language, UserContest, UserQuestion
 
 admin.site.site_header = 'PASC OJ Management Portal'
 admin.site.site_title = 'PASC OJ Management Portal'

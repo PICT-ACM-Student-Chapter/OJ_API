@@ -1,7 +1,7 @@
 from django.urls import path
 
 from .views import Run, CheckRunStatus, CallbackRunNow, \
-    CallbackSubmission, SubmissionStatus, SubmissionList
+    CallbackSubmission
 
 urlpatterns = [
     path('run', Run.as_view()),

@@ -1,8 +1,9 @@
-from contest.models import Contest
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Sum
+
+from contest.models import Contest
 
 User._meta.get_field('email')._unique = True
 

@@ -1,8 +1,9 @@
 import datetime
 
 import pytz
-from core.models import UserContest
 from rest_framework import permissions
+
+from core.models import UserContest
 
 
 class IsRunSelf(permissions.BasePermission):
