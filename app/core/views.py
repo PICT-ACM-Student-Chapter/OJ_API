@@ -4,10 +4,12 @@ from django.http import HttpResponseRedirect
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from rest_framework import generics
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from core.models import Language
+from contest.serializers import UserContestSerializer
+from core.models import Language, UserContest
 from core.serializers import LanguageSerializer
 
 
@@ -19,6 +21,15 @@ class LanguageList(generics.ListAPIView):
     @method_decorator(cache_page(60 * 60 * 2))
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
+
+
+class UserContestRetrieve(generics.RetrieveAPIView):
+    lookup_url_kwarg = 'id'
+    serializer_class = UserContestSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return UserContest.objects.filter(user_id=self.request.user)
 
 
 class ServerTime(APIView):
