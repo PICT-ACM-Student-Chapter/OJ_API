@@ -1,8 +1,9 @@
 import django.contrib.auth.password_validation as validators
-from core.models import Language
 from django.contrib.auth.models import User
 from django.core import exceptions
 from rest_framework import serializers
+
+from core.models import Language
 
 
 class LanguageSerializer(serializers.ModelSerializer):
