@@ -62,10 +62,11 @@ class ContestListSerializer(serializers.ModelSerializer):
 
 class UserContestSerializer(serializers.ModelSerializer):
     contest_id = ContestListSerializer()
+    user_contest_id = serializers.IntegerField(source='id')
 
     class Meta:
         model = UserContest
-        fields = ['id', 'contest_id', 'status']
+        fields = ['user_contest_id', 'contest_id', 'status']
         depth = 2
 
 

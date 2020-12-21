@@ -34,7 +34,6 @@ class UserContest(models.Model):
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
     status = models.CharField(max_length=20, choices=STATUSES)
 
-    # score = models.IntegerField(default=0)
     @property
     def total_score(self):
         user_ques = UserQuestion.objects.filter(user_contest=self)
@@ -62,8 +61,6 @@ class UserQuestion(models.Model):
 
     user_contest = models.ForeignKey(UserContest, on_delete=models.CASCADE,
                                      related_name='questions')
-    # sub = models.ForeignKey(to='submission.Submission',
-    #                         on_delete=models.CASCADE, null=True)
     penalty = models.FloatField(default=0)
     score = models.FloatField(default=0)
 
