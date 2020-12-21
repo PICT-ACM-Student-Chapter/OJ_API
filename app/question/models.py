@@ -1,17 +1,20 @@
+import uuid
+
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 
 
 def upload_input_rename(instance, filename):
     que_id = instance.que_id.id
+    print(instance)
     return "question_{}/testcases/input{}.txt". \
-        format(que_id, instance.id)
+        format(que_id, uuid.uuid4().hex)
 
 
 def upload_output_rename(instance, filename):
     que_id = instance.que_id.id
     return "question_{}/testcases/output{}.txt". \
-        format(que_id, instance.id)
+        format(que_id, uuid.uuid4().hex)
 
 
 # Create your models here.
