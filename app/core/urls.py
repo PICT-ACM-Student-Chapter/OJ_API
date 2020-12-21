@@ -1,6 +1,5 @@
-from django.urls import path, include
+from django.urls import path
 
-from core.views import Register, UserProfile
 from .views import LanguageList, ServerTime, Version
 
 urlpatterns = [
