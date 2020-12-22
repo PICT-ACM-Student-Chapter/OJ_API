@@ -12,13 +12,14 @@ class Language(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=20)
     judge0_lang_id = models.CharField(max_length=3)
-    stack_limit = models.IntegerField()
-    cpu_time_limit = models.IntegerField()
+    monaco_lang_code = models.CharField(max_length=20, default='cpp')
+    stack_limit = models.IntegerField(default=2048)
+    cpu_time_limit = models.IntegerField(default=2)
     # mem_limit should be >= 2048 as expected by judge0
-    mem_limit = models.IntegerField(validators=[MinValueValidator(2048)])
-    filesize_limit = models.IntegerField()
-    process_limit = models.IntegerField()
-    wall_time_limit = models.IntegerField()
+    mem_limit = models.IntegerField(validators=[MinValueValidator(2048)], default=2048)
+    filesize_limit = models.IntegerField(default=1024)
+    process_limit = models.IntegerField(default=50)
+    wall_time_limit = models.IntegerField(default=3)
 
     def __str__(self):
         return "{} - ID{}".format(self.name, self.id)
