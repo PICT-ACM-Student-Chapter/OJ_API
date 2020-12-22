@@ -13,6 +13,8 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+import os
+
 import debug_toolbar
 from django.conf import settings
 from django.conf.urls import url
@@ -25,15 +27,16 @@ from rest_framework import permissions
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="Snippets API",
+        title="PASC Online Judge API",
         default_version='v1',
-        description="Test description",
+        description="API for PASC Online Judge backend",
         terms_of_service="https://www.google.com/policies/terms/",
-        contact=openapi.Contact(email="contact@snippets.local"),
+        contact=openapi.Contact(email="pict.acm@gmail.com"),
         license=openapi.License(name="BSD License"),
     ),
     public=True,
     permission_classes=(permissions.AllowAny,),
+    url=os.environ.get('BASE_URL', 'https://api.onlinejudge.ml')
 )
 
 urlpatterns = [
