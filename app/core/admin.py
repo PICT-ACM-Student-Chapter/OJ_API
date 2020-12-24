@@ -5,6 +5,7 @@ from core.models import Language, UserContest, UserQuestion
 
 admin.site.site_header = 'PASC OJ Management Portal'
 admin.site.site_title = 'PASC OJ Management Portal'
+admin.site.site_url = 'https://onlinejudge.ml/login'
 
 
 class UserQuestionInline(admin.TabularInline):
