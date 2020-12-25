@@ -14,6 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Create .env file
+        run: touch .env
       - name: Test and Lint
         run: docker-compose run --rm app sh -c "flake8"
 
