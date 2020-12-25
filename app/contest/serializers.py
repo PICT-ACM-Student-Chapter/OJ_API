@@ -51,13 +51,13 @@ class ContestSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contest
         fields = ['id', 'name', 'start_time', 'end_time', 'instructions',
-                  'total_score', 'questions']
+                  'total_score', 'banner_image', 'questions']
 
 
 class ContestListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contest
-        fields = ['id', 'name', 'start_time', 'end_time']
+        fields = ['id', 'name', 'start_time', 'end_time', 'banner_image']
 
 
 class UserContestSerializer(serializers.ModelSerializer):

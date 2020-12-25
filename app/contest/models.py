@@ -1,7 +1,14 @@
+import uuid
+
 from django.db import models
 
 # Create your models here.
 from question.models import Question
+
+
+def upload_contest_banner(instance, filename):
+    return "contest-banners/banner-{}.{}". \
+        format(instance.id, filename.split('.')[-1])
 
 
 class Contest(models.Model):
@@ -9,6 +16,7 @@ class Contest(models.Model):
     name = models.CharField(max_length=30)
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
+    banner_image = models.FileField(upload_to=upload_contest_banner, null=True)
     instructions = models.TextField()
     questions = models.ManyToManyField(to=Question, related_name='contests',
                                        through='ContestQue')
