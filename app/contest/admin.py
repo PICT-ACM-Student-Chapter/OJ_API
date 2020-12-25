@@ -21,14 +21,14 @@ class ContestUsersInline(admin.TabularInline):
     model = UserContest
     verbose_name = "User"
     verbose_name_plural = "Registered Users"
-    fields = ['user_id']
+    readonly_fields = ('status', )
 
 
 class UserContestInline(admin.TabularInline):
     model = UserContest
     verbose_name = "Contest"
     verbose_name_plural = "Registered Contests"
-    fields = ['contest_id']
+    readonly_fields = ('status', )
 
 
 class ContestModelAdmin(admin.ModelAdmin):
