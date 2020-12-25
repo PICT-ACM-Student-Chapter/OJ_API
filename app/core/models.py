@@ -32,7 +32,8 @@ class UserContest(models.Model):
         ('STARTED', 'STARTED'),
         ('ENDED', 'ENDED')
     ]
-    contest_id = models.ForeignKey(Contest, on_delete=models.CASCADE)
+    contest_id = models.ForeignKey(Contest, on_delete=models.CASCADE,
+                                   related_name='user_contests')
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
     status = models.CharField(max_length=20, choices=STATUSES)
 

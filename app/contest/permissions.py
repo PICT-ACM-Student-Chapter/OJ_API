@@ -23,8 +23,9 @@ class IsInTime(permissions.BasePermission):
         return UserContest.objects.filter(
             contest_id__id=view.kwargs['id'],
             contest_id__start_time__lte=curr_time,
-            contest_id__end_time__gte=curr_time,
-            status='STARTED'
+            contest_id__end_time__gte=curr_time
+            # status == 'STARTED' or not is handled in the serializer
+            # questions are sent only when status is 'STARTED'
         ).count() > 0
 
 

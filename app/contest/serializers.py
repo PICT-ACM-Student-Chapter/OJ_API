@@ -29,6 +29,7 @@ class ContestQueSerializer(serializers.ModelSerializer):
     #     return representation
 
 
+# TODO: Check logic for total_score (near user_contest = ...)
 class ContestSerializer(serializers.ModelSerializer):
 
     def get_total_score(self, model):
@@ -43,7 +44,10 @@ class ContestSerializer(serializers.ModelSerializer):
 
     def get_questions(self, model):
         return ContestQueSerializer(
-            ContestQue.objects.filter(contest_id=model.id), many=True).data
+            ContestQue.objects.filter(
+                contest_id=model.id,
+                contest_id__user_contests__status='STARTED'
+            ), many=True).data
 
     total_score = serializers.SerializerMethodField(read_only=True)
     questions = serializers.SerializerMethodField(read_only=True)
