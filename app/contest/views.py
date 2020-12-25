@@ -46,8 +46,10 @@ class StartContest(APIView):
 
 def compare_scores(a, b):
     """
-    return a negative value (< 0) when the left item should be sorted before the right item
-    return a positive value (> 0) when the left item should be sorted after the right item
+    return a negative value (< 0) when the left item should be sorted before
+    the right item
+    return a positive value (> 0) when the left item should be sorted after
+    the right item
     """
     if a.total_score > b.total_score:
         return -1

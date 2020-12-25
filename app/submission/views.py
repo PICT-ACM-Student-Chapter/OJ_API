@@ -63,7 +63,8 @@ class RunRC(CreateAPIView):
         if not contest_que.exists():
             raise exceptions.NotFound('No Question Found')
         serializer.save(user_id=self.request.user, code='TkE=',
-                        lang_id=contest_que.first().question.correct_code_lang)  # 'NA' b64
+                        lang_id=contest_que.first().question.correct_code_lang)
+        # 'NA' b64
         code = contest_que.first().question.correct_code
         lang = contest_que.first().question.correct_code_lang
         print(type(lang))

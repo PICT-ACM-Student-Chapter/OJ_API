@@ -1,6 +1,4 @@
-import django.contrib.auth.password_validation as validators
 from django.contrib.auth.models import User
-from django.core import exceptions
 from rest_framework import serializers
 
 from core.models import Language
@@ -22,7 +20,6 @@ class UserSafeInfoSerializer(serializers.ModelSerializer):
         model = User
         fields = ['username', 'first_name', 'last_name', 'email']
         lookup_field = 'id'
-
 
 # class UserRegisterSerializer(serializers.ModelSerializer):
 #     class Meta:
