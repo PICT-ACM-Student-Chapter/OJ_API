@@ -16,4 +16,4 @@ COPY ./app /app
 
 RUN adduser -D user
 USER user
-
+RUN chmod 666 /app
