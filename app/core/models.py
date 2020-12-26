@@ -35,7 +35,8 @@ class UserContest(models.Model):
     contest_id = models.ForeignKey(Contest, on_delete=models.CASCADE,
                                    related_name='user_contests')
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
-    status = models.CharField(max_length=20, choices=STATUSES)
+    status = models.CharField(max_length=20, choices=STATUSES,
+                              default='REGISTERED')
 
     @property
     def total_score(self):
