@@ -29,18 +29,23 @@ class ContestQueSerializer(serializers.ModelSerializer):
     #     return representation
 
 
-# TODO: Check logic for total_score (near user_contest = ...)
 class ContestSerializer(serializers.ModelSerializer):
 
-    def get_total_score(self, model):
+    def get_user_score(self, model):
         user = None
         request = self.context.get("request")
         if request and hasattr(request, "user"):
             user = request.user
-        user_contest = UserContest.objects.filter(user_id=user).first()
+        user_contest = UserContest.objects.filter(user_id=user,
+                                                  contest_id=model.id).first()
         user_ques = UserQuestion.objects.filter(user_contest=user_contest)
         total_sum = user_ques.aggregate(Sum('score'))
-        return total_sum['score__sum']
+        return total_sum['score__sum'] or 0
+
+    def get_max_score(self, model):
+        questions = model.questions
+        total_sum = questions.aggregate(Sum('score'))
+        return total_sum['score__sum'] or 0
 
     def get_questions(self, model):
         return ContestQueSerializer(
@@ -49,13 +54,14 @@ class ContestSerializer(serializers.ModelSerializer):
                 contest_id__user_contests__status='STARTED'
             ), many=True).data
 
-    total_score = serializers.SerializerMethodField(read_only=True)
+    user_score = serializers.SerializerMethodField(read_only=True)
+    max_score = serializers.SerializerMethodField(read_only=True)
     questions = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Contest
         fields = ['id', 'name', 'start_time', 'end_time', 'instructions',
-                  'total_score', 'banner_image', 'questions']
+                  'user_score', 'max_score', 'banner_image', 'questions']
 
 
 class ContestListSerializer(serializers.ModelSerializer):
