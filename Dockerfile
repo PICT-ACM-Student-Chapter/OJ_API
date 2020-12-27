@@ -15,5 +15,5 @@ WORKDIR /app
 COPY ./app /app
 
 RUN adduser -D user
-RUN chmod 666 /app
+RUN chmod 777 /app
 USER user
