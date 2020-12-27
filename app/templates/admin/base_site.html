@@ -1,5 +1,24 @@
 {% extends 'admin/base_site.html' %}
 {% load static %}
 {% block extrastyle %}
-    <link rel="stylesheet" href="{%  static "custom.css" %}">
+    <link rel="stylesheet" href="{% static "custom.css" %}">
+{% endblock %}
+{% block extrahead %}
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script>
+        function mathjaxLoad(){
+            MathJax.Hub.Config({tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}});
+        }
+    </script>
+    <script id="MathJax-script"
+            src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"
+            onload="mathjaxLoad()"></script>
+    <script>
+        $(document).ready(function () {
+            $(document).on('martor:preview', function (e, preview) {
+                MathJax.Hub.Queue(['Typeset', MathJax.Hub, preview[0]]);
+            });
+        })
+    </script>
 {% endblock %}
