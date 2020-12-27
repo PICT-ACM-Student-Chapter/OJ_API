@@ -68,7 +68,7 @@ ROOT_URLCONF = 'app.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, "templates")],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -163,7 +163,8 @@ USE_TZ = True
 
 STATIC_URL = 'https://yt-list.s3.ap-south-1.amazonaws.com/staticfiles/'
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
-STATIC_ROOT = os.path.join(PROJECT_DIR, 'static')
+STATIC_ROOT = ''
+STATICFILES_DIRS = ( os.path.join('static'), )
 
 # Allow Cross-origin resource sharing
 CORS_ALLOW_CREDENTIALS = True

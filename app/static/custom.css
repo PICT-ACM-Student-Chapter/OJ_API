@@ -1,0 +1,7 @@
+#id_permissions, #id_user_permissions, #id_groups {
+    height: 250px;
+}
+
+td > .ui-state-default {
+    width: 100% !important
+}
