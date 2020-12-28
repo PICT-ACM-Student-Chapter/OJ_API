@@ -47,21 +47,13 @@ class ContestSerializer(serializers.ModelSerializer):
         total_sum = questions.aggregate(Sum('score'))
         return total_sum['score__sum'] or 0
 
-    def get_questions(self, model):
-        return ContestQueSerializer(
-            ContestQue.objects.filter(
-                contest_id=model.id,
-                contest_id__user_contests__status='STARTED'
-            ), many=True).data
-
     user_score = serializers.SerializerMethodField(read_only=True)
     max_score = serializers.SerializerMethodField(read_only=True)
-    questions = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Contest
         fields = ['id', 'name', 'start_time', 'end_time', 'instructions',
-                  'user_score', 'max_score', 'banner_image', 'questions']
+                  'user_score', 'max_score', 'banner_image',]
 
 
 class ContestListSerializer(serializers.ModelSerializer):

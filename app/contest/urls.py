@@ -2,12 +2,14 @@ from django.urls import path
 
 from contest.views import ContestList, ContestDetails, StartContest, \
     LeaderBoard
+from question.views import QuestionList
 from submission.views import SubmissionStatus, Submit, SubmissionList, RunRC, \
     CheckRunStatus
 
 urlpatterns = [
     path('<str:id>/start', StartContest.as_view()),
     path('<str:id>', ContestDetails.as_view()),
+    path('<str:contest_id>/questions', QuestionList.as_view()),
     path('<str:contest_id>/questions/<str:ques_id>/submit',
          Submit.as_view()),
     path('<str:contest_id>/questions/<str:ques_id>/rc/run',
