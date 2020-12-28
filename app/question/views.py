@@ -4,9 +4,10 @@ from rest_framework.generics import RetrieveAPIView, ListAPIView
 
 from core.models import UserQuestion
 from question.models import Question, Testcase
-from question.permissions import IsQuestionAllowed, IsInTime
+from question.permissions import IsQuestionAllowed, IsInTime, \
+    IsQuestionListInTime
 from question.serializers import QuestionDetailSerializer, \
-    UserQuestionListSerializer
+    QuestionListSerializer
 
 
 class QuestionDetail(RetrieveAPIView):
@@ -23,9 +24,11 @@ class QuestionDetail(RetrieveAPIView):
 
 
 class QuestionList(ListAPIView):
-    serializer_class = UserQuestionListSerializer
+    serializer_class = QuestionListSerializer
+    permission_classes = [IsQuestionListInTime]
+    pagination_class = None
 
     def get_queryset(self):
         return Question.objects.filter(
-            contests__contest_id=self.kwargs['contest_id']
+            contests__id=self.kwargs['contest_id']
         )
