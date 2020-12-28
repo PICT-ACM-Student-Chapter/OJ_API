@@ -47,13 +47,19 @@ class ContestSerializer(serializers.ModelSerializer):
         total_sum = questions.aggregate(Sum('score'))
         return total_sum['score__sum'] or 0
 
+    def get_status(self, model):
+        return UserContest.objects.filter(
+            user_id=self.context.get("request").user,
+            contest_id=model.id).first().status
+
     user_score = serializers.SerializerMethodField(read_only=True)
     max_score = serializers.SerializerMethodField(read_only=True)
+    status = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Contest
         fields = ['id', 'name', 'start_time', 'end_time', 'instructions',
-                  'user_score', 'max_score', 'banner_image',]
+                  'user_score', 'max_score', 'banner_image', 'status', ]
 
 
 class ContestListSerializer(serializers.ModelSerializer):
