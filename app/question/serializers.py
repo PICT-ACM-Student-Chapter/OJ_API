@@ -20,15 +20,17 @@ class QuestionDetailSerializer(serializers.ModelSerializer):
 
 
 class QuestionListSerializer(serializers.ModelSerializer):
+    def get_user_score(self, model):
+        user_ques = UserQuestion.objects.filter(
+            user_contest__contest_id=self.context.kwargs['contest_id'],
+            user_contest__user_id=self.context.request.user,
+            que_id=model.id
+        )
+        print(user_ques)
+        return user_ques.first().score if user_ques.exists() else 0
+
+    user_score = serializers.SerializerMethodField(read_only=True)
+
     model = Question
-    fields = ['id', 'name', 'score']
+    fields = ['id', 'name', 'score', 'user_score']
 
-
-class UserQuestionListSerializer(serializers.ModelSerializer):
-    que = QuestionListSerializer(many=True, read_only=True)
-    user_score = serializers.FloatField(source='score')
-    user_penalty = serializers.FloatField(source='penalty')
-
-    class Meta:
-        model = UserQuestion
-        fields = ['que', 'user_score', 'user_penalty']

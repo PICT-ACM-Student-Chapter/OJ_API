@@ -23,7 +23,9 @@ class QuestionDetail(RetrieveAPIView):
 
 
 class QuestionList(ListAPIView):
-    serializer_class = UserQuestionListSerializer,
+    serializer_class = UserQuestionListSerializer
 
     def get_queryset(self):
-        return UserQuestion.objects.filter(user_contest)
+        return Question.objects.filter(
+            contests__contest_id=self.kwargs['contest_id']
+        )
