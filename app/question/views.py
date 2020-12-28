@@ -2,7 +2,6 @@
 from django.db.models import Prefetch
 from rest_framework.generics import RetrieveAPIView, ListAPIView
 
-from core.models import UserQuestion
 from question.models import Question, Testcase
 from question.permissions import IsQuestionAllowed, IsInTime, \
     IsQuestionListInTime

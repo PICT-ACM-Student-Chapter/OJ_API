@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
-from question.models import Question, Testcase
 from core.models import UserQuestion
+from question.models import Question, Testcase
 
 
 class TestcaseSerializer(serializers.ModelSerializer):
@@ -37,4 +37,3 @@ class QuestionListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Question
         fields = ['id', 'name', 'score', 'user_score']
-
