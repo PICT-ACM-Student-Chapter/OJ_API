@@ -8,7 +8,7 @@ from requests_futures.sessions import FuturesSession
 
 from question.models import Testcase
 from submission.models import Verdict
-
+from django.conf import settings
 
 def b64_encode(s):
     return base64.b64encode(s.encode('utf-8')).decode("utf8")
@@ -81,16 +81,22 @@ def submit_to_submit(sub, lang, code, que_id, callback_url):
             print('input not in cache')
             with tc.input.open('r') as f:
                 sub_obj['stdin'] = b64_encode(f.read())
-                cache.set('tc_{}_input'.format(tc.id),
-                          sub_obj['stdin'], 2 * 60 * 60)
+                cache.set(
+                    'tc_{}_input'.format(tc.id),
+                    sub_obj['stdin'],
+                    settings.CACHE_TTLS['TC']
+                )
                 f.close()
 
         if not sub_obj['expected_output']:
             print('output not in cache')
             with tc.output.open('r') as f:
                 sub_obj['expected_output'] = b64_encode(f.read())
-                cache.set('tc_{}_output'.format(tc.id),
-                          sub_obj['expected_output'], 2 * 60 * 60)
+                cache.set(
+                    'tc_{}_output'.format(tc.id),
+                    sub_obj['expected_output'],
+                    settings.CACHE_TTLS['TC']
+                )
                 f.close()
 
         data['submissions'].append(sub_obj)

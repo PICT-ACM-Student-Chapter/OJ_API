@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'tn!u@1&&t79-6aclk%0)3k%89k2u)f04^zv@dksxbnb)!e!rq-'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = 'DEV_ENV' in os.environ
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -285,6 +285,12 @@ CACHES = {
             "PASSWORD": "YourPasswordHere1234"
         }
     }
+}
+
+CACHE_TTLS = {
+    "TC": 2*60*60,
+    "LANGS": 10*60,
+    "LEADERBOARD": 1*60
 }
 
 PENALTY_MINUTES = 10

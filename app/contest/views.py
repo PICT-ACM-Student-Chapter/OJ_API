@@ -1,7 +1,10 @@
 # Create your views here.
 from functools import cmp_to_key
 
+from django.conf import settings
 from django.http import HttpResponse, JsonResponse
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from rest_framework import permissions
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.views import APIView
@@ -71,3 +74,7 @@ class LeaderBoard(ListAPIView):
         data = UserContest.objects.filter(contest_id__id=contest_id,
                                           status='STARTED')
         return sorted(data, key=cmp_to_key(compare_scores))
+
+    @method_decorator(cache_page(settings.CACHE_TTLS['LEADERBOARD']))
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)

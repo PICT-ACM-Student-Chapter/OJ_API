@@ -1,6 +1,9 @@
 import datetime
 
+from django.conf import settings
 from django.http import HttpResponseRedirect
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -16,7 +19,7 @@ class LanguageList(generics.ListAPIView):
     serializer_class = LanguageSerializer
     authentication_classes = ()
 
-    # @method_decorator(cache_page(60 * 60 * 2))
+    @method_decorator(cache_page(settings.CACHE_TTLS['LANGS']))
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
 
