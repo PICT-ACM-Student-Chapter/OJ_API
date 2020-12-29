@@ -127,7 +127,7 @@ class SubmissionStatus(RetrieveAPIView):
 class CallbackRunNow(APIView):
 
     def put(self, request, sub_id):
-        print(request.data)
+        # TODO: Optimise output length
         run_submission = RunSubmission.objects.filter(
             id=sub_id).first()
         run_submission.stdout = request.data['stdout']
@@ -150,9 +150,9 @@ class CallbackSubmission(APIView):
         # Save the verdict
         verdict_submission = Verdict.objects.filter(
             id=verdict_id).first()
-        verdict_submission.stdout = request.data['stdout']
-        verdict_submission.stderr = request.data['stderr'] or request.data[
-            'message'] or request.data['compile_output'] or ''
+        # verdict_submission.stdout = (request.data['stdout'])[:100]
+        # verdict_submission.stderr = (request.data['stderr'] or request.data[
+        #     'message'] or request.data['compile_output'] or '')[:100]
         verdict_submission.exec_time = request.data['time']
         verdict_submission.mem = request.data['memory']
         status = request.data['status']['id']

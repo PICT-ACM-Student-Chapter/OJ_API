@@ -4,6 +4,7 @@ import os
 import requests
 from django.core.cache import cache
 from rest_framework.status import HTTP_201_CREATED
+from requests_futures.sessions import FuturesSession
 
 from question.models import Testcase
 from submission.models import Verdict
@@ -49,8 +50,14 @@ def submit_to_submit(sub, lang, code, que_id, callback_url):
     # get testcases for the submission
     test_cases = Testcase.objects.filter(que_id=que_id)
 
+    # bulk create verdicts
+    verdicts = []
     for tc in test_cases:
-        verdict = Verdict.objects.create(test_case=tc, submission=sub)
+        verdicts.append(Verdict(test_case=tc, submission=sub))
+    verdicts = Verdict.objects.bulk_create(verdicts)
+
+    for verdict in verdicts:
+        tc = verdict.test_case
         sub_obj = {"source_code": code, "language_id": lang['judge0_lang_id'],
                    "number_of_runs": "1",
                    "cpu_time_limit": lang['cpu_time_limit'],
@@ -75,7 +82,7 @@ def submit_to_submit(sub, lang, code, que_id, callback_url):
             with tc.input.open('r') as f:
                 sub_obj['stdin'] = b64_encode(f.read())
                 cache.set('tc_{}_input'.format(tc.id),
-                          sub_obj['stdin'], 2*60*60)
+                          sub_obj['stdin'], 2 * 60 * 60)
                 f.close()
 
         if not sub_obj['expected_output']:
@@ -83,13 +90,14 @@ def submit_to_submit(sub, lang, code, que_id, callback_url):
             with tc.output.open('r') as f:
                 sub_obj['expected_output'] = b64_encode(f.read())
                 cache.set('tc_{}_output'.format(tc.id),
-                          sub_obj['expected_output'], 2*60*60)
+                          sub_obj['expected_output'], 2 * 60 * 60)
                 f.close()
 
         data['submissions'].append(sub_obj)
-
-    res = requests.post(url, json=data)
-    if res.status_code == HTTP_201_CREATED:
-        return
-    print(res.json())
-    raise Exception('Judge0 Error:', res)
+    session = FuturesSession()
+    session.post(url, json=data)
+    return
+    # if res.status_code == HTTP_201_CREATED:
+    #     return
+    # # TODO: Judge 0 Error Handling
+    # raise Exception('Judge0 Error:', res)

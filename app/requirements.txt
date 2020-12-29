@@ -16,3 +16,4 @@ django-3-jet==1.0.8
 django-redis>=4.12.1,<4.13.0
 django-redisboard>=4.1.1,<4.2.0
 djoser>=2.0.5,<2.1.0
+requests_futures==1.0.0
