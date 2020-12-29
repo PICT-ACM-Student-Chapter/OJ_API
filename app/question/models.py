@@ -1,5 +1,7 @@
+import os
 import uuid
 
+from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 
@@ -34,9 +36,18 @@ class Question(models.Model):
         return "{} - ID{}".format(self.name, self.id)
 
 
+def validate_testcase(value):
+    """Checking if the uploaded testcase has .txt extension"""
+    ext = os.path.splitext(value.name)[1]  # [0] returns path+filename
+    valid_extensions = ['.txt']
+    if not ext.lower() in valid_extensions:
+        raise ValidationError('Unsupported file extension, only txt allowed')
+
+
 class Testcase(models.Model):
     id = models.AutoField(primary_key=True)
-    input = models.FileField(upload_to=upload_input_rename)
+    input = models.FileField(upload_to=upload_input_rename,
+                             validators=[validate_testcase])
     output = models.FileField(upload_to=upload_output_rename)
     que_id = models.ForeignKey(Question, on_delete=models.CASCADE,
                                related_name="test_cases")

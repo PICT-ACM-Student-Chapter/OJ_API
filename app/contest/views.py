@@ -81,5 +81,6 @@ class LeaderBoard(ListAPIView):
         res = cache.get('leaderboard_{}'.format(self.kwargs['contest_id']))
         if not res:
             res = self.list(request, *args, **kwargs).data
-            cache.set('leaderboard_{}'.format(self.kwargs['contest_id']), res, settings.CACHE_TTLS['LEADERBOARD'])
+            cache.set('leaderboard_{}'.format(self.kwargs['contest_id']), res,
+                      settings.CACHE_TTLS['LEADERBOARD'])
         return Response(data=res)

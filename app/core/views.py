@@ -1,6 +1,7 @@
 import datetime
 
 from django.conf import settings
+from django.core.cache import cache
 from django.http import HttpResponseRedirect
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
@@ -19,9 +20,12 @@ class LanguageList(generics.ListAPIView):
     serializer_class = LanguageSerializer
     authentication_classes = ()
 
-    @method_decorator(cache_page(settings.CACHE_TTLS['LANGS']))
     def get(self, request, *args, **kwargs):
-        return self.list(request, *args, **kwargs)
+        res = cache.get('languages')
+        if not res:
+            res = self.list(request, *args, **kwargs).data
+            cache.set('languages', res, settings.CACHE_TTLS['LANGS'])
+        return Response(data=res)
 
 
 class UserContestRetrieve(generics.RetrieveAPIView):
