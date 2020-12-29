@@ -2,13 +2,14 @@ import base64
 import os
 
 import requests
+from django.conf import settings
 from django.core.cache import cache
-from rest_framework.status import HTTP_201_CREATED
 from requests_futures.sessions import FuturesSession
+from rest_framework.status import HTTP_201_CREATED
 
 from question.models import Testcase
 from submission.models import Verdict
-from django.conf import settings
+
 
 def b64_encode(s):
     return base64.b64encode(s.encode('utf-8')).decode("utf8")
