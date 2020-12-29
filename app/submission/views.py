@@ -184,7 +184,6 @@ class CallbackSubmission(APIView):
                         submission.status = 'CE'
                     else:
                         submission.status = 'WA'
-                        print('helllo', flush=True)
                     submission.save()
                     self.update_user_question(submission)
             else:
@@ -213,7 +212,6 @@ class CallbackSubmission(APIView):
         return JsonResponse({})
 
     def update_user_question(self, sub):
-        print('helllo', flush=True)
         user_ques = UserQuestion.objects.filter(
             que=sub.ques_id,
             user_contest__user_id=sub.user_id,

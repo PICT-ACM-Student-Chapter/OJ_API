@@ -2,6 +2,7 @@ import base64
 import os
 
 import requests
+from django.core.cache import cache
 from rest_framework.status import HTTP_201_CREATED
 
 from question.models import Testcase
@@ -50,37 +51,45 @@ def submit_to_submit(sub, lang, code, que_id, callback_url):
 
     for tc in test_cases:
         verdict = Verdict.objects.create(test_case=tc, submission=sub)
-        sub_obj = {
-            "source_code": code,
-            "language_id": lang['judge0_lang_id'],
-            "number_of_runs": "1",
-            "stdin": "",
-            "expected_output": "",
-            "cpu_time_limit": lang['cpu_time_limit'],
-            "cpu_extra_time": "0.5",
-            "wall_time_limit": lang['wall_time_limit'],
-            "memory_limit": lang['mem_limit'],
-            "stack_limit": lang['stack_limit'],
-            "max_processes_and_or_threads": lang['process_limit'],
-            "enable_per_process_and_thread_time_limit": False,
-            "enable_per_process_and_thread_memory_limit": False,
-            "max_file_size": lang['filesize_limit'],
-            "callback_url": '{}/{}'.format(callback_url, verdict.id)
-        }
+        sub_obj = {"source_code": code, "language_id": lang['judge0_lang_id'],
+                   "number_of_runs": "1",
+                   "cpu_time_limit": lang['cpu_time_limit'],
+                   "cpu_extra_time": "0.5",
+                   "wall_time_limit": lang['wall_time_limit'],
+                   "memory_limit": lang['mem_limit'],
+                   "stack_limit": lang['stack_limit'],
+                   "max_processes_and_or_threads": lang['process_limit'],
+                   "enable_per_process_and_thread_time_limit": False,
+                   "enable_per_process_and_thread_memory_limit": False,
+                   "max_file_size": lang['filesize_limit'],
+                   "callback_url": '{}/{}'.format(callback_url, verdict.id),
+                   'stdin': cache.get('tc_{}_input'.format(tc.id)),
+                   'expected_output': cache.get('tc_{}_output'.format(tc.id))
+                   }
 
-        with tc.input.open('r') as f:
-            sub_obj['stdin'] = b64_encode(f.read())
-            f.close()
+        # check if files exist in cache
+        # print(sub_obj['stdin'])
 
-        with tc.output.open('r') as f:
-            sub_obj['expected_output'] = b64_encode(f.read())
-            f.close()
+        if not sub_obj['stdin']:
+            print('input not in cache')
+            with tc.input.open('r') as f:
+                sub_obj['stdin'] = b64_encode(f.read())
+                cache.set('tc_{}_input'.format(tc.id),
+                          sub_obj['stdin'], 2*60*60)
+                f.close()
+
+        if not sub_obj['expected_output']:
+            print('output not in cache')
+            with tc.output.open('r') as f:
+                sub_obj['expected_output'] = b64_encode(f.read())
+                cache.set('tc_{}_output'.format(tc.id),
+                          sub_obj['expected_output'], 2*60*60)
+                f.close()
 
         data['submissions'].append(sub_obj)
-        print(data)
 
     res = requests.post(url, json=data)
     if res.status_code == HTTP_201_CREATED:
         return
-
+    print(res.json())
     raise Exception('Judge0 Error:', res)
