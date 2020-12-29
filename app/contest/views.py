@@ -2,11 +2,13 @@
 from functools import cmp_to_key
 
 from django.conf import settings
+from django.core.cache import cache
 from django.http import HttpResponse, JsonResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from rest_framework import permissions
 from rest_framework.generics import ListAPIView, RetrieveAPIView
+from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from contest.models import Contest
@@ -75,6 +77,9 @@ class LeaderBoard(ListAPIView):
                                           status='STARTED')
         return sorted(data, key=cmp_to_key(compare_scores))
 
-    @method_decorator(cache_page(settings.CACHE_TTLS['LEADERBOARD']))
     def get(self, request, *args, **kwargs):
-        return self.list(request, *args, **kwargs)
+        res = cache.get('leaderboard_{}'.format(self.kwargs['contest_id']))
+        if not res:
+            res = self.list(request, *args, **kwargs).data
+            cache.set('leaderboard_{}'.format(self.kwargs['contest_id']), res, settings.CACHE_TTLS['LEADERBOARD'])
+        return Response(data=res)
