@@ -21,6 +21,7 @@ from core.models import UserContest
 class ContestList(ListAPIView):
     serializer_class = UserContestSerializer
     permission_classes = [permissions.IsAuthenticated]
+    pagination_class = None
 
     def get_queryset(self):
         return UserContest.objects.filter(user_id=self.request.user.id)

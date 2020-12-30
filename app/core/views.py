@@ -19,6 +19,7 @@ class LanguageList(generics.ListAPIView):
     queryset = Language.objects.all()
     serializer_class = LanguageSerializer
     authentication_classes = ()
+    pagination_class = None
 
     def get(self, request, *args, **kwargs):
         res = cache.get('languages')

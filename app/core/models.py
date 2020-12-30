@@ -6,6 +6,7 @@ from django.db.models import Sum
 from contest.models import Contest
 
 User._meta.get_field('email')._unique = True
+User.Meta.indexes = [models.Index(fields=['username']), ]
 
 
 class Language(models.Model):
