@@ -26,10 +26,17 @@ class QuestionListSerializer(serializers.ModelSerializer):
             user_contest__user_id=self.context['request'].user,
             que_id=model.id
         )
-        user_score = {
-            'score': user_ques.first().score if user_ques.exists() else 0,
-            'penalty': user_ques.first().penalty if user_ques.exists() else 0
-        }
+        try:
+            q = user_ques.first()
+            user_score = {
+                'score': q.score,
+                'penalty': q.penalty
+            }
+        except AttributeError:
+            user_score = {
+                'score': 0,
+                'penalty': 0
+            }
         return user_score
 
     user_score = serializers.SerializerMethodField(read_only=True)

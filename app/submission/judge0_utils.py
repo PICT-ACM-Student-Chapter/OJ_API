@@ -76,10 +76,8 @@ def submit_to_submit(sub, lang, code, que_id, callback_url):
                    }
 
         # check if files exist in cache
-        # print(sub_obj['stdin'])
 
         if not sub_obj['stdin']:
-            print('input not in cache')
             with tc.input.open('r') as f:
                 sub_obj['stdin'] = b64_encode(f.read())
                 cache.set(
@@ -90,7 +88,6 @@ def submit_to_submit(sub, lang, code, que_id, callback_url):
                 f.close()
 
         if not sub_obj['expected_output']:
-            print('output not in cache')
             with tc.output.open('r') as f:
                 sub_obj['expected_output'] = b64_encode(f.read())
                 cache.set(

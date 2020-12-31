@@ -37,7 +37,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'debug_toolbar',
     'rest_framework',
     'storages',
     'drf_yasg',
@@ -49,10 +48,11 @@ INSTALLED_APPS = [
     'submission',
     'redisboard',
     'djoser',
+    'silk'
 ]
 
 MIDDLEWARE = [
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'silk.middleware.SilkyMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -115,7 +115,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 SIMPLE_JWT = {
-   'AUTH_HEADER_TYPES': ('JWT',),
+    'AUTH_HEADER_TYPES': ('JWT',),
 }
 
 # DJOSER = {
@@ -163,8 +163,8 @@ USE_TZ = True
 
 STATIC_URL = 'https://yt-list.s3.ap-south-1.amazonaws.com/staticfiles/'
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
-STATIC_ROOT = ''
-STATICFILES_DIRS = ( os.path.join('static'), )
+STATIC_ROOT = os.path.join(PROJECT_DIR, 'static')
+STATICFILES_DIRS = (os.path.join('static'),)
 
 # Allow Cross-origin resource sharing
 CORS_ALLOW_CREDENTIALS = True
@@ -257,7 +257,6 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 50
@@ -289,9 +288,14 @@ CACHES = {
 }
 
 CACHE_TTLS = {
-    "TC": 2*60*60,
-    "LANGS": 10*60,
-    "LEADERBOARD": 1*60
+    "TC": 2 * 60 * 60,
+    "LANGS": 10 * 60,
+    "LEADERBOARD": 1 * 60,
+    "CONTEST_MAX_SCORE": 10 * 60,
+    "CONTEST_QUESTIONS": 10 * 60,
+    "QUESTION_DETAIL": 50 * 60,
+    "RUN": 1 * 60,
+    "SUBS_LIST": 2 * 60
 }
 
 PENALTY_MINUTES = 10

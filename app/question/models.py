@@ -8,7 +8,6 @@ from django.db import models
 
 def upload_input_rename(instance, filename):
     que_id = instance.que_id.id
-    print(instance)
     return "question_{}/testcases/input{}.txt". \
         format(que_id, uuid.uuid4().hex)
 

@@ -1,11 +1,13 @@
 # Create your views here.
 import os
 
+from django.core.cache import cache
 from django.forms import model_to_dict
 from django.http import JsonResponse
 from rest_framework import exceptions
 from rest_framework.generics import CreateAPIView, RetrieveAPIView, \
     ListAPIView
+from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from app import settings
@@ -42,12 +44,20 @@ class Run(CreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(user_id=self.request.user)
-        submit_to_run(
-            model_to_dict(serializer.validated_data['lang_id']),
-            serializer.validated_data['code'],
-            serializer.validated_data['stdin'],
-            '{}/{}'.format(os.environ['JUDGE0_RUN_CALLBACK_URL'],
-                           serializer.data['id']))
+        try:
+            submit_to_run(
+                model_to_dict(serializer.validated_data['lang_id']),
+                serializer.validated_data['code'],
+                serializer.validated_data['stdin'],
+                '{}/{}'.format(os.environ['JUDGE0_RUN_CALLBACK_URL'],
+                               serializer.data['id']))
+        except KeyError:
+            submit_to_run(
+                model_to_dict(serializer.validated_data['lang_id']),
+                serializer.validated_data['code'],
+                '',
+                '{}/{}'.format(os.environ['JUDGE0_RUN_CALLBACK_URL'],
+                               serializer.data['id']))
 
 
 class RunRC(CreateAPIView):
@@ -60,14 +70,17 @@ class RunRC(CreateAPIView):
             question__id=self.kwargs['ques_id'],
             is_reverse_coding=True
         )
-        if not contest_que.exists():
+
+        fq = contest_que.first()
+
+        if not fq:
             raise exceptions.NotFound('No Question Found')
+
         serializer.save(user_id=self.request.user, code='TkE=',
-                        lang_id=contest_que.first().question.correct_code_lang)
+                        lang_id=fq.question.correct_code_lang)
         # 'NA' b64
-        code = contest_que.first().question.correct_code
-        lang = contest_que.first().question.correct_code_lang
-        print(type(lang))
+        code = fq.question.correct_code
+        lang = fq.question.correct_code_lang
 
         submit_to_run(
             model_to_dict(lang),
@@ -82,6 +95,14 @@ class CheckRunStatus(RetrieveAPIView):
     lookup_url_kwarg = 'id'
     queryset = RunSubmission.objects.all()
     permission_classes = [IsRunInTime, IsRunSelf]
+
+    def get(self, request, *args, **kwargs):
+        res = cache.get('run_{}'.format(self.kwargs['id']))
+        if not res:
+            res = self.retrieve(request, *args, **kwargs).data
+            cache.set('run_{}'.format(self.kwargs['id']), res,
+                      settings.CACHE_TTLS['RUN'])
+        return Response(data=res)
 
 
 class Submit(CreateAPIView):
@@ -103,16 +124,17 @@ class Submit(CreateAPIView):
             os.environ['JUDGE0_SUBMIT_CALLBACK_URL'])
 
 
-# TODO: Query with contest_id
 class SubmissionList(ListAPIView):
     serializer_class = SubmissionListSerializer
 
     def get_queryset(self):
+        ques_id = self.kwargs['ques_id']
+        contest_id = self.kwargs['contest_id']
         try:
-            ques_id = self.kwargs['ques_id']
             que = Question.objects.get(id=ques_id)
             return Submission.objects.filter(user_id=self.request.user,
-                                             ques_id=que)
+                                             ques_id=que,
+                                             contest_id=contest_id)
         except Question.DoesNotExist:
             raise exceptions.NotFound('No Submissions Found')
 
@@ -128,6 +150,7 @@ class CallbackRunNow(APIView):
 
     def put(self, request, sub_id):
         # TODO: Optimise output length
+        cache.delete('run_{}'.format(sub_id))
         run_submission = RunSubmission.objects.filter(
             id=sub_id).first()
         run_submission.stdout = request.data['stdout']

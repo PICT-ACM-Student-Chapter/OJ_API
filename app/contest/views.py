@@ -11,13 +11,14 @@ from rest_framework.views import APIView
 
 from contest.models import Contest
 from contest.permissions import IsAllowedInContest, IsInTime, IsStartInTime
-from contest.serializers import LeaderBoardSerializer
+from contest.serializers import LeaderBoardSerializer, \
+    UserContestListSerializer
 from contest.serializers import UserContestSerializer, ContestSerializer
 from core.models import UserContest
 
 
 class ContestList(ListAPIView):
-    serializer_class = UserContestSerializer
+    serializer_class = UserContestListSerializer
     permission_classes = [permissions.IsAuthenticated]
     pagination_class = None
 
@@ -29,8 +30,8 @@ class ContestDetails(RetrieveAPIView):
     serializer_class = ContestSerializer
     lookup_url_kwarg = 'id'
     queryset = Contest.objects.all()
-    permission_classes = [permissions.IsAuthenticated, IsAllowedInContest,
-                          IsInTime]
+    permission_classes = [permissions.IsAuthenticated, IsAllowedInContest, ]
+    # IsInTime]
 
 
 class StartContest(APIView):

@@ -1,3 +1,5 @@
+from django.conf import settings
+from django.core.cache import cache
 from django.db.models import Sum
 from rest_framework import serializers
 
@@ -36,16 +38,22 @@ class ContestSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         if request and hasattr(request, "user"):
             user = request.user
-        user_contest = UserContest.objects.filter(user_id=user,
-                                                  contest_id=model.id).first()
-        user_ques = UserQuestion.objects.filter(user_contest=user_contest)
+        user_ques = UserQuestion.objects.filter(
+            user_contest__user_id=user, user_contest__contest_id=model.id)
         total_sum = user_ques.aggregate(Sum('score'))
         return total_sum['score__sum'] or 0
 
     def get_max_score(self, model):
-        questions = model.questions
-        total_sum = questions.aggregate(Sum('score'))
-        return total_sum['score__sum'] or 0
+        max_score = cache.get('contest-{}-max-score'.format(model.id))
+
+        if not max_score:
+            questions = model.questions
+            total_sum = questions.aggregate(Sum('score'))
+            max_score = total_sum['score__sum'] or 0
+            cache.set('contest-{}-max-score'.format(model.id), max_score,
+                      settings.CACHE_TTLS['CONTEST_MAX_SCORE'])
+
+        return max_score
 
     def get_status(self, model):
         return UserContest.objects.filter(
@@ -77,6 +85,15 @@ class UserContestSerializer(serializers.ModelSerializer):
         fields = ['user_contest_id', 'contest_id', 'status', 'total_score',
                   'total_penalty']
         depth = 2
+
+
+class UserContestListSerializer(serializers.ModelSerializer):
+    contest_id = ContestListSerializer()
+    user_contest_id = serializers.IntegerField(source='id')
+
+    class Meta:
+        model = UserContest
+        fields = ['user_contest_id', 'contest_id', 'status', ]
 
 
 class UserQuestionSerializer(serializers.ModelSerializer):
