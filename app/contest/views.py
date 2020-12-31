@@ -30,8 +30,8 @@ class ContestDetails(RetrieveAPIView):
     serializer_class = ContestSerializer
     lookup_url_kwarg = 'id'
     queryset = Contest.objects.all()
-    permission_classes = [permissions.IsAuthenticated, IsAllowedInContest, ]
-    # IsInTime]
+    permission_classes = [permissions.IsAuthenticated, IsAllowedInContest,
+                          IsInTime]
 
 
 class StartContest(APIView):
