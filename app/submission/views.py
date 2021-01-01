@@ -158,24 +158,25 @@ class SubmissionStatus(RetrieveAPIView):
 class CallbackRunNow(APIView):
 
     def put(self, request, sub_id):
-        cache.delete('run_{}'.format(sub_id))
-        run_submission = RunSubmission.objects.filter(
-            id=sub_id).first()
         stdout = request.data['stdout']
         stderr = request.data['stderr'] or request.data[
             'message'] or request.data['compile_output'] or ''
+        stdout = b64_sub_str(stdout or '', settings.MAX_RUN_OUTPUT_LENGTH)
+        stderr = b64_sub_str(stderr or '', settings.MAX_RUN_OUTPUT_LENGTH)
 
-        stdout = b64_sub_str(stdout, settings.MAX_RUN_OUTPUT_LENGTH)
-        stderr = b64_sub_str(stderr, settings.MAX_RUN_OUTPUT_LENGTH)
-
-        run_submission.stdout = stdout
-        run_submission.stderr = stderr
-        run_submission.exec_time = request.data['time']
-        run_submission.mem = request.data['memory']
         status = request.data['status']['id']
-        run_submission.status = STATUSES[status]
 
-        run_submission.save()
+        RunSubmission.objects.filter(
+            id=sub_id).update(
+            stdout=stdout,
+            stderr=stderr,
+            exec_time=request.data['time'],
+            mem=request.data['memory'],
+            status=STATUSES[status]
+        )
+
+        cache.delete('run_{}'.format(sub_id))
+        delete_submission(request.data['token'])
 
         return JsonResponse({})
 
