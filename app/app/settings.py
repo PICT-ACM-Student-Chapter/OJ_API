@@ -299,6 +299,14 @@ CACHE_TTLS = {
 PENALTY_MINUTES = 10
 PENALTY_VERDICTS = ['WA', 'TLE', 'SIGSEGV', 'SIGXFSZ', 'SIGFPE', 'SIGABRT',
                     'RTE', 'NZEC']
-DEBUG_TOOLBAR_CONFIG = {
-    'SHOW_TOOLBAR_CALLBACK': lambda _request: DEBUG
-}
+
+# DEV ENV
+
+if DEBUG:
+    MIDDLEWARE.insert(0, 'silk.middleware.SilkyMiddleware',)
+
+    INSTALLED_APPS.insert(0, 'silk')
+
+    DEBUG_TOOLBAR_CONFIG = {
+        'SHOW_TOOLBAR_CALLBACK': lambda _request: DEBUG
+    }

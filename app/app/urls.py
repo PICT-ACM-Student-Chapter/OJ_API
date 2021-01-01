@@ -15,7 +15,6 @@ Including another URLconf
 """
 import os
 
-import debug_toolbar
 from django.conf import settings
 from django.conf.urls import url
 from django.conf.urls.static import static
@@ -54,7 +53,6 @@ urlpatterns = [
                   url(r'^auth/', include('djoser.urls.jwt')),
                   path('admin/', admin.site.urls),
                   path('martor/', include('martor.urls')),
-                  path('__debug__/', include(debug_toolbar.urls)),
                   path('contests/', include('contest.urls')),
                   path('', include('core.urls')),
                   path('questions/', include('question.urls')),
