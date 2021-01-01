@@ -1,6 +1,7 @@
 # Create your views here.
 import os
 
+from django.conf import settings
 from django.core.cache import cache
 from django.forms import model_to_dict
 from django.http import JsonResponse
@@ -10,12 +11,12 @@ from rest_framework.generics import CreateAPIView, RetrieveAPIView, \
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from app import settings
 from contest.models import ContestQue, Contest
-from core.models import UserQuestion, UserContest
-from question.models import Question
+from core.models import UserQuestion
+from question.models import Question, Testcase
 from submission.models import RunSubmission, Verdict, Submission
 from submission.permissions import IsRunInTime, IsRunSelf, IsSubmissionInTime
+from utils import b64_sub_str
 from .judge0_utils import submit_to_run, submit_to_submit
 from .serializers import RunSubmissionSerializer, SubmissionSerializer, \
     SubmissionListSerializer, RunRCSerializer
@@ -145,18 +146,30 @@ class SubmissionStatus(RetrieveAPIView):
     queryset = Submission.objects.all()
     permission_classes = [IsRunSelf]
 
+    def get(self, request, *args, **kwargs):
+        res = cache.get('submit_{}'.format(self.kwargs['id']))
+        if not res:
+            res = self.retrieve(request, *args, **kwargs).data
+            cache.set('run_{}'.format(self.kwargs['id']), res,
+                      settings.CACHE_TTLS['RUN'])
+        return Response(data=res)
+
 
 class CallbackRunNow(APIView):
 
     def put(self, request, sub_id):
-        # TODO: Optimise output length
         cache.delete('run_{}'.format(sub_id))
         run_submission = RunSubmission.objects.filter(
             id=sub_id).first()
-        run_submission.stdout = request.data['stdout']
-        run_submission.stderr = request.data['stderr'] or request.data[
-            'message'] or request.data[
-                                    'compile_output'] or ''
+        stdout = request.data['stdout']
+        stderr = request.data['stderr'] or request.data[
+            'message'] or request.data['compile_output'] or ''
+
+        stdout = b64_sub_str(stdout, settings.MAX_RUN_OUTPUT_LENGTH)
+        stderr = b64_sub_str(stderr, settings.MAX_RUN_OUTPUT_LENGTH)
+
+        run_submission.stdout = stdout
+        run_submission.stderr = stderr
         run_submission.exec_time = request.data['time']
         run_submission.mem = request.data['memory']
         status = request.data['status']['id']
@@ -167,68 +180,95 @@ class CallbackRunNow(APIView):
         return JsonResponse({})
 
 
+# TODO: Caching (Query optimization done)
 class CallbackSubmission(APIView):
 
     def put(self, request, verdict_id):
         # Save the verdict
-        verdict_submission = Verdict.objects.filter(
-            id=verdict_id).first()
+        status = request.data['status']['id']
+
+        # Query1 (defined and called)
+        Verdict.objects.filter(id=verdict_id).update(
+            exec_time=request.data['time'],
+            mem=request.data['memory'],
+            status=STATUSES[status],
+        )
         # verdict_submission.stdout = (request.data['stdout'])[:100]
         # verdict_submission.stderr = (request.data['stderr'] or request.data[
         #     'message'] or request.data['compile_output'] or '')[:100]
-        verdict_submission.exec_time = request.data['time']
-        verdict_submission.mem = request.data['memory']
-        status = request.data['status']['id']
-        verdict_submission.status = STATUSES[status]
-        verdict_submission.save()
 
         # Get submission object and all verdict object for the submission
-        submission = verdict_submission.submission
-        verdicts = Verdict.objects.filter(submission=submission)
+        # Query2 (defined)
+        verdicts = Verdict.objects.filter(submission__verdicts__id=verdict_id)
 
         # Check if there are no verdicts in queue
         # (i.e. this is last verdict of the submission)
-        if verdicts.filter(status='IN_QUEUE').count() == 0:
+
+        in_queue_count = 0
+        ac_count = 0
+        # Query2 (called)
+        for v in verdicts:
+            if v.status == 'IN_QUEUE':
+                in_queue_count += 1
+            elif v.status == 'AC':
+                ac_count += 1
+
+        if in_queue_count == 0:
+            # Query3
+            submission = verdicts[0].submission
             # Update submission object
+            # Query4
             if ContestQue.objects.filter(
-                    question=submission.ques_id,
-                    contest=submission.contest
+                    question_id=submission.ques_id_id,
+                    contest_id=submission.contest_id
             ).first().is_binary:
                 # Binary
-                if verdicts.exclude(status='AC').count() == 0:
+                if ac_count == len(verdicts):
                     # All ACs
                     submission.score = submission.ques_id.score
                     submission.status = 'AC'
+                    # Query5
                     submission.save()
                     self.update_user_question(submission)  # TODO: change name
                 else:
                     # TODO: Write logic for internal err and CE
-                    if verdict_submission.status == 'CE':
+                    if status == 'CE':
                         submission.status = 'CE'
                     else:
                         submission.status = 'WA'
+                    # Query5
                     submission.save()
                     self.update_user_question(submission)
             else:
                 # Partial
                 weight = 0
                 total_weight = 0
+
+                # Query5
+                test_cases = Testcase.objects.filter(verdict__in=verdicts)
+
                 for v in verdicts:
+                    for tc in test_cases:
+                        if tc.id == v.test_case_id:
+                            v.test_case = tc
+                            break
                     total_weight += v.test_case.weightage
                     if v.status == 'AC':
                         weight += v.test_case.weightage
+                # Query6 (for question)
                 score = (submission.ques_id.score * weight / total_weight)
                 submission.score = round(score, 2)
 
                 if (weight / total_weight) == 1:
                     submission.status = 'AC'
-                elif verdict_submission.status == 'CE':
+                elif status == 'CE':
                     submission.status = 'CE'
                 elif weight == 0:
                     submission.status = 'WA'
                 else:
                     submission.status = 'PA'
 
+                # Query7
                 submission.save()
                 self.update_user_question(submission)
 
@@ -236,25 +276,13 @@ class CallbackSubmission(APIView):
 
     def update_user_question(self, sub):
         user_ques = UserQuestion.objects.filter(
-            que=sub.ques_id,
-            user_contest__user_id=sub.user_id,
-            user_contest__contest_id=sub.contest
+            que_id=sub.ques_id_id,
+            user_contest__user_id_id=sub.user_id_id,
+            user_contest__contest_id_id=sub.contest_id
         )
 
-        if not user_ques.exists():
-            # UserQue doesn't exists, so create one
-            user_contest = UserContest.objects.filter(
-                user_id=sub.user_id,
-                contest_id=sub.contest
-            ).first()
-
-            user_que = UserQuestion.objects.create(
-                que=sub.ques_id,
-                user_contest=user_contest
-            )
-        else:
-            # UserQue exists, so select the first
-            user_que = user_ques.first()
+        # Query1
+        user_que = user_ques.first()
 
         # If UserQue score is less than or equal to que score already,
         # no need to update (only best one with min time-penalty is considered)
@@ -262,16 +290,16 @@ class CallbackSubmission(APIView):
         # WHEN SUBMITTED FIRST WA PENALTY WAS NOT ADDDED,
         # SO WHEN 2 PEOPLE WILL HAVE WAs FOR A QUESTION THEN PENALTIES
         # SHOULD PE CONSIDERED
-        if sub.score <= user_que.score:
+        if sub.score <= (user_que.score if user_que else 0):
             return
 
         # Score improved, update UserQue
-        user_que.score = sub.score
 
         # Time penalty
         time_penalty = (sub.created_at - sub.contest.start_time).seconds / 60
         time_penalty = round(time_penalty, 2)
         # WA penalty
+        # Query2
         no_of_wa = Submission.objects.filter(
             status__in=['WA', 'PA'], ques_id=sub.ques_id,
             contest=sub.contest, user_id=sub.user_id
@@ -279,5 +307,8 @@ class CallbackSubmission(APIView):
         wa_penalty = settings.PENALTY_MINUTES * no_of_wa
 
         # Total penalty
-        user_que.penalty = (time_penalty + wa_penalty)
-        user_que.save()
+        #  Query3
+        user_ques.update_or_create(
+            score=sub.score,
+            penalty=(time_penalty + wa_penalty)
+        )

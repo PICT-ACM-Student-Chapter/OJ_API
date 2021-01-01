@@ -9,10 +9,7 @@ from rest_framework.status import HTTP_201_CREATED
 
 from question.models import Testcase
 from submission.models import Verdict
-
-
-def b64_encode(s):
-    return base64.b64encode(s.encode('utf-8')).decode("utf8")
+from utils import b64_encode
 
 
 def submit_to_run(lang, code, stdin, callback_url):
