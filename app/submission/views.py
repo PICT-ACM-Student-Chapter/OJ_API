@@ -17,7 +17,7 @@ from question.models import Question, Testcase
 from submission.models import RunSubmission, Verdict, Submission
 from submission.permissions import IsRunInTime, IsRunSelf, IsSubmissionInTime
 from utils import b64_sub_str
-from .judge0_utils import submit_to_run, submit_to_submit
+from .judge0_utils import submit_to_run, submit_to_submit, delete_submission
 from .serializers import RunSubmissionSerializer, SubmissionSerializer, \
     SubmissionListSerializer, RunRCSerializer
 
@@ -193,6 +193,9 @@ class CallbackSubmission(APIView):
             mem=request.data['memory'],
             status=STATUSES[status],
         )
+
+        delete_submission(request.data['token'])
+
         # verdict_submission.stdout = (request.data['stdout'])[:100]
         # verdict_submission.stderr = (request.data['stderr'] or request.data[
         #     'message'] or request.data['compile_output'] or '')[:100]

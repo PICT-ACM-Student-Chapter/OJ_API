@@ -101,3 +101,11 @@ def submit_to_submit(sub, lang, code, que_id, callback_url):
     #     return
     # # TODO: Judge 0 Error Handling
     # raise Exception('Judge0 Error:', res)
+
+
+def delete_submission(token):
+    url = '{}/submissions/{}'.format(
+        os.environ['JUDGE0_BASE_URL'],
+        token
+    )
+    requests.delete(url)
