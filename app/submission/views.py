@@ -19,7 +19,7 @@ from submission.permissions import IsRunInTime, IsRunSelf, IsSubmissionInTime
 from utils import b64_sub_str
 from .judge0_utils import submit_to_run, submit_to_submit
 from .serializers import RunSubmissionSerializer, SubmissionSerializer, \
-    SubmissionListSerializer, RunRCSerializer, VerdictSerializer
+    SubmissionListSerializer, RunRCSerializer
 
 STATUSES = {
     1: 'IN_QUEUE',
