@@ -24,7 +24,8 @@ class RunSubmissionSerializer(serializers.ModelSerializer):
             'stdout': {'required': False, 'read_only': True},
             'stderr': {'required': False, 'read_only': True},
             'exec_time': {'required': False, 'read_only': True},
-            'mem': {'required': False, 'read_only': True}
+            'mem': {'required': False, 'read_only': True},
+            'code': {'write_only': True}
         }
 
 
@@ -41,7 +42,8 @@ class SubmissionSerializer(serializers.ModelSerializer):
             'verdicts': {'required': False, 'read_only': True},
             'contest': {'required': False, 'read_only': True},
             'ques_id': {'required': False, 'read_only': True},
-            'score': {'required': False, 'read_only': True}
+            'score': {'required': False, 'read_only': True},
+            'code': {'write_only': True}
         }
 
 

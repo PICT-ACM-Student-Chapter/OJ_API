@@ -83,4 +83,6 @@ class LeaderBoard(ListAPIView):
             res = self.list(request, *args, **kwargs).data
             cache.set('leaderboard_{}'.format(self.kwargs['contest_id']), res,
                       settings.CACHE_TTLS['LEADERBOARD'])
+        else:
+            self.check_permissions(self)
         return Response(data=res)

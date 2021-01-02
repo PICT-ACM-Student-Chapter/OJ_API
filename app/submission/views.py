@@ -19,7 +19,7 @@ from submission.permissions import IsRunInTime, IsRunSelf, IsSubmissionInTime
 from utils import b64_sub_str
 from .judge0_utils import submit_to_run, submit_to_submit
 from .serializers import RunSubmissionSerializer, SubmissionSerializer, \
-    SubmissionListSerializer, RunRCSerializer
+    SubmissionListSerializer, RunRCSerializer, VerdictSerializer
 
 STATUSES = {
     1: 'IN_QUEUE',
@@ -135,7 +135,8 @@ class SubmissionList(ListAPIView):
             que = Question.objects.get(id=ques_id)
             return Submission.objects.filter(user_id=self.request.user,
                                              ques_id=que,
-                                             contest_id=contest_id)
+                                             contest_id=contest_id) \
+                .order_by('-created_at')
         except Question.DoesNotExist:
             raise exceptions.NotFound('No Submissions Found')
 
@@ -147,11 +148,13 @@ class SubmissionStatus(RetrieveAPIView):
     permission_classes = [IsRunSelf]
 
     def get(self, request, *args, **kwargs):
-        res = cache.get('submit_{}'.format(self.kwargs['id']))
+        cache_key = 'submit_{}'.format(self.kwargs['id'])
+        res = cache.get(cache_key)
         if not res:
             res = self.retrieve(request, *args, **kwargs).data
-            cache.set('run_{}'.format(self.kwargs['id']), res,
-                      settings.CACHE_TTLS['RUN'])
+            cache.set(cache_key, res, settings.CACHE_TTLS['SUBMISSION'])
+        else:
+            self.check_permissions(self)
         return Response(data=res)
 
 
