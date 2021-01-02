@@ -131,14 +131,23 @@ class SubmissionList(ListAPIView):
     def get_queryset(self):
         ques_id = self.kwargs['ques_id']
         contest_id = self.kwargs['contest_id']
-        try:
-            que = Question.objects.get(id=ques_id)
-            return Submission.objects.filter(user_id=self.request.user,
-                                             ques_id=que,
-                                             contest_id=contest_id) \
-                .order_by('-created_at')
-        except Question.DoesNotExist:
-            raise exceptions.NotFound('No Submissions Found')
+        cache_key = "subs_list_u{}_c{}_q{}".format(self.request.user.id,
+                                                   ques_id, contest_id)
+        subs_list = cache.get(cache_key)
+
+        if not subs_list:
+            try:
+                que = Question.objects.get(id=ques_id)
+                subs_list = Submission.objects.filter(
+                    user_id=self.request.user,
+                    ques_id=que,
+                    contest_id=contest_id) \
+                    .order_by('-created_at')
+                cache.set(cache_key, subs_list,
+                          settings.CACHE_TTLS['SUBS_LIST'])
+            except Question.DoesNotExist:
+                raise exceptions.NotFound('No Submissions Found')
+        return subs_list
 
 
 class SubmissionStatus(RetrieveAPIView):
@@ -197,8 +206,8 @@ class CallbackSubmission(APIView):
         )
 
         # update single verdict from cache
-        sub_id = Verdict.objects.get(id=verdict_id).submission.id
-        cache_key = 'submit_{}'.format(sub_id)
+        submission = Verdict.objects.get(id=verdict_id).submission
+        cache_key = 'submit_{}'.format(submission.id)
         c = cache.get(cache_key)
         if c:
             # if present then only update it
@@ -230,10 +239,7 @@ class CallbackSubmission(APIView):
                 ac_count += 1
 
         if in_queue_count == 0:
-            # Query3
             cache.delete(cache_key)
-            submission = verdicts[0].submission
-            # Update submission object
             # Query4
             if ContestQue.objects.filter(
                     question_id=submission.ques_id_id,
