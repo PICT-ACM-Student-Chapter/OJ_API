@@ -131,13 +131,23 @@ class SubmissionList(ListAPIView):
     def get_queryset(self):
         ques_id = self.kwargs['ques_id']
         contest_id = self.kwargs['contest_id']
-        try:
-            que = Question.objects.get(id=ques_id)
-            return Submission.objects.filter(user_id=self.request.user,
-                                             ques_id=que,
-                                             contest_id=contest_id)
-        except Question.DoesNotExist:
-            raise exceptions.NotFound('No Submissions Found')
+        cache_key = "subs_list_u{}_c{}_q{}".format(self.request.user.id,
+                                                   ques_id, contest_id)
+        subs_list = cache.get(cache_key)
+
+        if not subs_list:
+            try:
+                que = Question.objects.get(id=ques_id)
+                subs_list = Submission.objects.filter(
+                    user_id=self.request.user,
+                    ques_id=que,
+                    contest_id=contest_id) \
+                    .order_by('-created_at')
+                cache.set(cache_key, subs_list,
+                          settings.CACHE_TTLS['SUBS_LIST'])
+            except Question.DoesNotExist:
+                raise exceptions.NotFound('No Submissions Found')
+        return subs_list
 
 
 class SubmissionStatus(RetrieveAPIView):
@@ -147,11 +157,13 @@ class SubmissionStatus(RetrieveAPIView):
     permission_classes = [IsRunSelf]
 
     def get(self, request, *args, **kwargs):
-        res = cache.get('submit_{}'.format(self.kwargs['id']))
+        cache_key = 'submit_{}'.format(self.kwargs['id'])
+        res = cache.get(cache_key)
         if not res:
             res = self.retrieve(request, *args, **kwargs).data
-            cache.set('run_{}'.format(self.kwargs['id']), res,
-                      settings.CACHE_TTLS['RUN'])
+            cache.set(cache_key, res, settings.CACHE_TTLS['SUBMISSION'])
+        else:
+            self.check_permissions(self)
         return Response(data=res)
 
 
@@ -187,7 +199,6 @@ class CallbackSubmission(APIView):
     def put(self, request, verdict_id):
         # Save the verdict
         status = request.data['status']['id']
-
         # Query1 (defined and called)
         Verdict.objects.filter(id=verdict_id).update(
             exec_time=request.data['time'],
@@ -196,6 +207,19 @@ class CallbackSubmission(APIView):
         )
 
         delete_submission(request.data['token'])
+
+        # update single verdict from cache
+        submission = Verdict.objects.get(id=verdict_id).submission
+        cache_key = 'submit_{}'.format(submission.id)
+        c = cache.get(cache_key)
+        if c:
+            # if present then only update it
+            # iterate through verdicts and update the status
+            for i in range(len(c['verdicts'])):
+                if c['verdicts'][i]['id'] == verdict_id:
+                    c['verdicts'][i]['status'] = STATUSES[status]
+                    break
+            cache.set(cache_key, c, settings.CACHE_TTLS['SUBMISSION'])
 
         # verdict_submission.stdout = (request.data['stdout'])[:100]
         # verdict_submission.stderr = (request.data['stderr'] or request.data[
@@ -218,9 +242,7 @@ class CallbackSubmission(APIView):
                 ac_count += 1
 
         if in_queue_count == 0:
-            # Query3
-            submission = verdicts[0].submission
-            # Update submission object
+            cache.delete(cache_key)
             # Query4
             if ContestQue.objects.filter(
                     question_id=submission.ques_id_id,

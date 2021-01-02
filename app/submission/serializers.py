@@ -6,7 +6,7 @@ from .models import RunSubmission, Submission, Verdict
 class VerdictSerializer(serializers.ModelSerializer):
     class Meta:
         model = Verdict
-        fields = ['test_case', 'status']
+        fields = ['id', 'test_case', 'status']
         extra_kwargs = {
             'id': {'required': False, 'read_only': True},
             'status': {'required': False, 'read_only': True},
@@ -24,7 +24,8 @@ class RunSubmissionSerializer(serializers.ModelSerializer):
             'stdout': {'required': False, 'read_only': True},
             'stderr': {'required': False, 'read_only': True},
             'exec_time': {'required': False, 'read_only': True},
-            'mem': {'required': False, 'read_only': True}
+            'mem': {'required': False, 'read_only': True},
+            'code': {'write_only': True}
         }
 
 
@@ -41,7 +42,8 @@ class SubmissionSerializer(serializers.ModelSerializer):
             'verdicts': {'required': False, 'read_only': True},
             'contest': {'required': False, 'read_only': True},
             'ques_id': {'required': False, 'read_only': True},
-            'score': {'required': False, 'read_only': True}
+            'score': {'required': False, 'read_only': True},
+            'code': {'write_only': True}
         }
 
 

@@ -293,7 +293,8 @@ CACHE_TTLS = {
     "CONTEST_QUESTIONS": 10 * 60,
     "QUESTION_DETAIL": 50 * 60,
     "RUN": 1 * 60,
-    "SUBS_LIST": 2 * 60
+    "SUBS_LIST": 5 * 60,
+    "SUBMISSION": 5 * 60
 }
 
 PENALTY_MINUTES = 10
