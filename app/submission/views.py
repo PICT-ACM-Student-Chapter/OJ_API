@@ -163,7 +163,7 @@ class SubmissionStatus(RetrieveAPIView):
             res = self.retrieve(request, *args, **kwargs).data
             cache.set(cache_key, res, settings.CACHE_TTLS['SUBMISSION'])
         else:
-            self.check_permissions(self)
+            self.check_permissions(request)
         return Response(data=res)
 
 

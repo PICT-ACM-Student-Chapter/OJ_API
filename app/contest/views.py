@@ -6,7 +6,6 @@ from django.core.cache import cache
 from django.http import HttpResponse, JsonResponse
 from rest_framework import permissions
 from rest_framework.generics import ListAPIView, RetrieveAPIView
-from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from contest.models import Contest
@@ -73,16 +72,17 @@ class LeaderBoard(ListAPIView):
 
     def get_queryset(self):
         contest_id = self.kwargs['contest_id']
-        data = UserContest.objects.filter(contest_id__id=contest_id,
-                                          status='STARTED')
-        return sorted(data, key=cmp_to_key(compare_scores))
 
-    def get(self, request, *args, **kwargs):
-        res = cache.get('leaderboard_{}'.format(self.kwargs['contest_id']))
-        if not res:
-            res = self.list(request, *args, **kwargs).data
-            cache.set('leaderboard_{}'.format(self.kwargs['contest_id']), res,
+        cache_key = 'leaderboard_{}'.format(
+            self.kwargs['contest_id'],
+        )
+        data = cache.get(cache_key)
+        if not data:
+            data = UserContest.objects.filter(contest_id__id=contest_id,
+                                              status='STARTED')
+            data = sorted(data, key=cmp_to_key(compare_scores))
+            cache.set(cache_key, data,
                       settings.CACHE_TTLS['LEADERBOARD'])
         else:
-            self.check_permissions(self)
-        return Response(data=res)
+            self.check_permissions(self.request)
+        return data
