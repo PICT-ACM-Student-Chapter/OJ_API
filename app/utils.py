@@ -12,3 +12,4 @@ def b64_decode(s):
 def b64_sub_str(s, length):
     if len(s) > (4 // 3 * length):
         return b64_encode(b64_decode(s)[:length] + ' ...truncated')
+    return s
