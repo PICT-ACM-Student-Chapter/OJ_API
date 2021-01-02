@@ -6,7 +6,7 @@ from .models import RunSubmission, Submission, Verdict
 class VerdictSerializer(serializers.ModelSerializer):
     class Meta:
         model = Verdict
-        fields = ['test_case', 'status']
+        fields = ['id', 'test_case', 'status']
         extra_kwargs = {
             'id': {'required': False, 'read_only': True},
             'status': {'required': False, 'read_only': True},

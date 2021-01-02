@@ -189,13 +189,26 @@ class CallbackSubmission(APIView):
     def put(self, request, verdict_id):
         # Save the verdict
         status = request.data['status']['id']
-
         # Query1 (defined and called)
         Verdict.objects.filter(id=verdict_id).update(
             exec_time=request.data['time'],
             mem=request.data['memory'],
             status=STATUSES[status],
         )
+
+        # update single verdict from cache
+        sub_id = Verdict.objects.get(id=verdict_id).submission.id
+        cache_key = 'submit_{}'.format(sub_id)
+        c = cache.get(cache_key)
+        if c:
+            # if present then only update it
+            # iterate through verdicts and update the status
+            for i in range(len(c['verdicts'])):
+                if c['verdicts'][i]['id'] == verdict_id:
+                    c['verdicts'][i]['status'] = STATUSES[status]
+                    break
+            cache.set(cache_key, c, settings.CACHE_TTLS['SUBMISSION'])
+
         # verdict_submission.stdout = (request.data['stdout'])[:100]
         # verdict_submission.stderr = (request.data['stderr'] or request.data[
         #     'message'] or request.data['compile_output'] or '')[:100]
@@ -218,6 +231,7 @@ class CallbackSubmission(APIView):
 
         if in_queue_count == 0:
             # Query3
+            cache.delete(cache_key)
             submission = verdicts[0].submission
             # Update submission object
             # Query4
