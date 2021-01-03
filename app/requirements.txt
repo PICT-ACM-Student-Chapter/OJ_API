@@ -17,3 +17,4 @@ django-redisboard>=4.1.1,<4.2.0
 djoser>=2.0.5,<2.1.0
 requests_futures==1.0.0
 django-silk==4.1.0
+gunicorn==20.0.4
