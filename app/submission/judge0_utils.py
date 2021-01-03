@@ -10,6 +10,10 @@ from question.models import Testcase
 from submission.models import Verdict
 from utils import b64_encode
 
+j0_headers = {
+    "X-Auth-Token": os.environ.get('JUDGE0_AUTH_TOKEN', '')
+}
+
 
 def submit_to_run(lang, code, stdin, callback_url):
     url = '{}/submissions?base64_encoded=true'.format(
@@ -30,7 +34,7 @@ def submit_to_run(lang, code, stdin, callback_url):
         "max_file_size": lang['filesize_limit'],
         "callback_url": callback_url
     }
-    res = requests.post(url, json=data)
+    res = requests.post(url, json=data, headers=j0_headers)
     if res.status_code == HTTP_201_CREATED and 'token' in res.json():
         return res.json()['token']
     raise Exception('Judge0 Error:', res)
@@ -95,7 +99,7 @@ def submit_to_submit(sub, lang, code, que_id, callback_url):
 
         data['submissions'].append(sub_obj)
     session = FuturesSession()
-    session.post(url, json=data)
+    session.post(url, json=data, headers=j0_headers)
     return
     # if res.status_code == HTTP_201_CREATED:
     #     return
@@ -108,4 +112,4 @@ def delete_submission(token):
         os.environ['JUDGE0_BASE_URL'],
         token
     )
-    requests.delete(url)
+    requests.delete(url, headers=j0_headers)
