@@ -16,6 +16,12 @@ class QuestionListSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'score']
 
 
+class QuestionIdListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Question
+        fields = ['id']
+
+
 class ContestQueSerializer(serializers.ModelSerializer):
     question = QuestionListSerializer(read_only=True)
 

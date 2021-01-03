@@ -6,12 +6,13 @@ from django.core.cache import cache
 from django.http import HttpResponse, JsonResponse
 from rest_framework import permissions
 from rest_framework.generics import ListAPIView, RetrieveAPIView
+from rest_framework.response import Response
 from rest_framework.views import APIView
-
+from rest_framework.status import HTTP_404_NOT_FOUND
 from contest.models import Contest
 from contest.permissions import IsAllowedInContest, IsInTime, IsStartInTime
 from contest.serializers import LeaderBoardSerializer, \
-    UserContestListSerializer
+    UserContestListSerializer, QuestionIdListSerializer
 from contest.serializers import UserContestSerializer, ContestSerializer
 from core.models import UserContest
 
@@ -86,3 +87,22 @@ class LeaderBoard(ListAPIView):
         else:
             self.check_permissions(self.request)
         return data
+
+    def get(self, request, *args, **kwargs):
+        res = self.list(self, request, *args, **kwargs)
+        cache_key = 'leaderboard_{}_ques'.format(
+            self.kwargs['contest_id'],
+        )
+        ques_ids = cache.get(cache_key)
+        if not ques_ids:
+            try:
+                ques = Contest.objects.get(
+                    id=self.kwargs['contest_id']).questions.all()
+                ques_ids = QuestionIdListSerializer(ques, many=True).data
+                cache.set(cache_key, ques_ids,
+                          settings.CACHE_TTLS['CONTEST_QUESTIONS'])
+            except Contest.DoesNotExist:
+                return Response(status=HTTP_404_NOT_FOUND)
+        data = res.data
+        data['questions'] = ques_ids
+        return Response(data=data)

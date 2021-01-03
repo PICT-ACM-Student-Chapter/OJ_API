@@ -39,15 +39,6 @@ schema_view = get_schema_view(
 )
 
 urlpatterns = [
-                  url(r'^swagger(?P<format>\.json|\.yaml)$',
-                      schema_view.without_ui(cache_timeout=0),
-                      name='schema-json'),
-                  url(r'^swagger/$', schema_view.with_ui('swagger',
-                                                         cache_timeout=0),
-                      name='schema-swagger-ui'),
-                  url(r'^redoc/$', schema_view.with_ui('redoc',
-                                                       cache_timeout=0),
-                      name='schema-redoc'),
                   url(r'^jet/', include('jet.urls', 'jet')),
                   url(r'^auth/', include('djoser.urls')),
                   url(r'^auth/', include('djoser.urls.jwt')),
@@ -61,4 +52,15 @@ urlpatterns = [
               ] + static(settings.STATIC_URL,
                          document_root=settings.STATIC_ROOT)
 if settings.DEBUG:
-    urlpatterns += [url(r'^silk/', include('silk.urls', namespace='silk'))]
+    urlpatterns += [url(r'^swagger(?P<format>\.json|\.yaml)$',
+                        schema_view.without_ui(cache_timeout=0),
+                        name='schema-json'),
+                    url(r'^swagger/$', schema_view.with_ui('swagger',
+                                                           cache_timeout=0),
+                        name='schema-swagger-ui'),
+                    url(r'^redoc/$', schema_view.with_ui('redoc',
+                                                         cache_timeout=0),
+                        name='schema-redoc'),
+
+                    url(r'^silk/', include('silk.urls', namespace='silk'))
+                    ]
