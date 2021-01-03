@@ -60,5 +60,5 @@ urlpatterns = [
 
               ] + static(settings.STATIC_URL,
                          document_root=settings.STATIC_ROOT)
-
-urlpatterns += [url(r'^silk/', include('silk.urls', namespace='silk'))]
+if settings.DEBUG:
+    urlpatterns += [url(r'^silk/', include('silk.urls', namespace='silk'))]
