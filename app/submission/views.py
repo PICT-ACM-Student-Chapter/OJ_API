@@ -12,7 +12,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from contest.models import ContestQue, Contest
-from core.models import UserQuestion
+from core.models import UserQuestion, UserContest
 from question.models import Question, Testcase
 from submission.models import RunSubmission, Verdict, Submission
 from submission.permissions import IsRunInTime, IsRunSelf, IsSubmissionInTime
@@ -337,10 +337,13 @@ class CallbackSubmission(APIView):
                 penalty=(time_penalty + wa_penalty)
             )
         except UserQuestion.DoesNotExist:
+            user_contest = UserContest.objects.get(
+                user_id_id=sub.user_id_id,
+                contest_id_id=sub.contest_id,
+            )
             UserQuestion.objects.create(
                 que_id=sub.ques_id_id,
-                user_contest__user_id_id=sub.user_id_id,
-                user_contest__contest_id_id=sub.contest_id,
+                user_contest=user_contest,
                 score=sub.score,
                 penalty=(time_penalty + wa_penalty) if sub.score > 0 else 0
             )
