@@ -47,7 +47,7 @@ class QuestionListSerializer(serializers.ModelSerializer):
         return user_score
 
     def get_contest_que(self, model):
-        contest_que = ContestQue.object.get(
+        contest_que = ContestQue.objects.get(
             contest_id=self.context['view'].kwargs['contest_id'],
             question_id=model.id
         )
