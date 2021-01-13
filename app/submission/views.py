@@ -301,7 +301,7 @@ class CallbackSubmission(APIView):
         return JsonResponse({})
 
     @staticmethod
-    def update_user_question(self, sub):
+    def update_user_question(sub):
         # Time penalty
         time_penalty = (sub.created_at - sub.contest.start_time).seconds / 60
         time_penalty = round(time_penalty, 2)
