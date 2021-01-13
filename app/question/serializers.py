@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from contest.models import ContestQue
 from core.models import UserQuestion
 from question.models import Question, Testcase
 
@@ -17,6 +18,12 @@ class QuestionDetailSerializer(serializers.ModelSerializer):
         model = Question
         fields = ['id', 'name', 'description', 'input_format', 'output_format',
                   'constraints', 'test_cases', 'score', ]
+
+
+class ContestQuestionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContestQue
+        fields = ['is_binary', 'is_reverse_coding', 'order']
 
 
 class QuestionListSerializer(serializers.ModelSerializer):
@@ -39,8 +46,17 @@ class QuestionListSerializer(serializers.ModelSerializer):
             }
         return user_score
 
+    def get_contest_que(self, model):
+        contest_que = ContestQue.object.get(
+            contest_id=self.context['view'].kwargs['contest_id'],
+            question_id=model.id
+        )
+
+        return ContestQuestionSerializer(contest_que).data
+
     user_score = serializers.SerializerMethodField(read_only=True)
+    contest_que = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Question
-        fields = ['id', 'name', 'score', 'user_score']
+        fields = ['id', 'name', 'score', 'user_score', 'contest_que']
