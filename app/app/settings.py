@@ -12,12 +12,15 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 import os
 from datetime import timedelta
 from pathlib import Path
+
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
+from sentry_sdk.integrations.redis import RedisIntegration
 
 sentry_sdk.init(
-    dsn="https://be0b44a7b1e84ae5a21230d3cfb3b0ed@o504182.ingest.sentry.io/5590586",
-    integrations=[DjangoIntegration()],
+    dsn="https://be0b44a7b1e84ae5a21230d3cfb3b0ed@o504182.ingest.sentry.io"
+        "/5590586",
+    integrations=[DjangoIntegration(), RedisIntegration()],
     traces_sample_rate=1.0,
 
     # If you wish to associate users to errors (assuming you are using
