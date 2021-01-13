@@ -19,7 +19,7 @@ class QuestionListSerializer(serializers.ModelSerializer):
 class QuestionIdListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Question
-        fields = ['id','score']
+        fields = ['id', 'score']
 
 
 class ContestQueSerializer(serializers.ModelSerializer):
