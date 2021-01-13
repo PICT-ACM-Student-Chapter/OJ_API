@@ -315,6 +315,7 @@ class CallbackSubmission(APIView):
         try:
             user_que = UserQuestion.objects.get(
                 que_id=sub.ques_id_id,
+                user_contest__user_id_id=sub.user_id_id,
                 user_contest__contest_id_id=sub.contest_id
             )
 
