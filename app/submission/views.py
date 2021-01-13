@@ -300,27 +300,8 @@ class CallbackSubmission(APIView):
 
         return JsonResponse({})
 
+    @staticmethod
     def update_user_question(self, sub):
-        user_ques = UserQuestion.objects.filter(
-            que_id=sub.ques_id_id,
-            user_contest__user_id_id=sub.user_id_id,
-            user_contest__contest_id_id=sub.contest_id
-        )
-
-        # Query1
-        user_que = user_ques.first()
-
-        # If UserQue score is less than or equal to que score already,
-        # no need to update (only best one with min time-penalty is considered)
-
-        # WHEN SUBMITTED FIRST WA PENALTY WAS NOT ADDDED,
-        # SO WHEN 2 PEOPLE WILL HAVE WAs FOR A QUESTION THEN PENALTIES
-        # SHOULD PE CONSIDERED
-        if sub.score <= (user_que.score if user_que else 0):
-            return
-
-        # Score improved, update UserQue
-
         # Time penalty
         time_penalty = (sub.created_at - sub.contest.start_time).seconds / 60
         time_penalty = round(time_penalty, 2)
@@ -331,10 +312,35 @@ class CallbackSubmission(APIView):
             contest=sub.contest, user_id=sub.user_id
         ).count()
         wa_penalty = settings.PENALTY_MINUTES * no_of_wa
+        try:
+            user_que = UserQuestion.objects.get(
+                que_id=sub.ques_id_id,
+                user_contest__contest_id_id=sub.contest_id
+            )
 
-        # Total penalty
-        #  Query3
-        user_ques.update_or_create(
-            score=sub.score,
-            penalty=(time_penalty + wa_penalty)
-        )
+            # Query1 If UserQue score is less than or equal to que score
+            # already, no need to update (only best one with min
+            # time-penalty is considered)
+
+            # WHEN SUBMITTED FIRST WA PENALTY WAS NOT ADDDED,
+            # SO WHEN 2 PEOPLE WILL HAVE WAs FOR A QUESTION THEN PENALTIES
+            # SHOULD PE CONSIDERED
+            if sub.score <= (user_que.score if user_que else 0):
+                return
+
+            # Score improved, update UserQue
+
+            # Total penalty
+            #  Query3
+            user_que.update(
+                score=sub.score,
+                penalty=(time_penalty + wa_penalty)
+            )
+        except UserQuestion.DoesNotExist:
+            UserQuestion.objects.create(
+                que_id=sub.ques_id_id,
+                user_contest__user_id_id=sub.user_id_id,
+                user_contest__contest_id_id=sub.contest_id,
+                score=sub.score,
+                penalty=(time_penalty + wa_penalty) if sub.score > 0 else 0
+            )
