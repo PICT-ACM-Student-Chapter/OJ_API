@@ -131,22 +131,19 @@ class SubmissionList(ListAPIView):
     def get_queryset(self):
         ques_id = self.kwargs['ques_id']
         contest_id = self.kwargs['contest_id']
-        cache_key = "subs_list_u{}_c{}_q{}".format(self.request.user.id,
-                                                   ques_id, contest_id)
-        subs_list = cache.get(cache_key)
-
-        if not subs_list:
-            try:
-                que = Question.objects.get(id=ques_id)
-                subs_list = Submission.objects.filter(
-                    user_id=self.request.user,
-                    ques_id=que,
-                    contest_id=contest_id) \
-                    .order_by('-created_at')
-                cache.set(cache_key, subs_list,
-                          settings.CACHE_TTLS['SUBS_LIST'])
-            except Question.DoesNotExist:
-                raise exceptions.NotFound('No Submissions Found')
+        # cache_key = "subs_list_u{}_c{}_q{}".format(self.request.user.id,
+        #                                            ques_id, contest_id)
+        # subs_list = cache.get(cache_key)
+        subs_list = []
+        try:
+            que = Question.objects.get(id=ques_id)
+            subs_list = Submission.objects.filter(
+                user_id=self.request.user,
+                ques_id=que,
+                contest_id=contest_id) \
+                .order_by('-created_at')
+        except Question.DoesNotExist:
+            raise exceptions.NotFound('No Submissions Found')
         return subs_list
 
 
