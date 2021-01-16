@@ -330,10 +330,9 @@ class CallbackSubmission(APIView):
 
             # Total penalty
             #  Query3
-            user_que.update(
-                score=sub.score,
-                penalty=(time_penalty + wa_penalty)
-            )
+            user_que.score = sub.score,
+            user_que.penalty = (time_penalty + wa_penalty)
+            user_que.save()
         except UserQuestion.DoesNotExist:
             user_contest = UserContest.objects.get(
                 user_id_id=sub.user_id_id,
