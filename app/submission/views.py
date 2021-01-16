@@ -330,7 +330,7 @@ class CallbackSubmission(APIView):
 
             # Total penalty
             #  Query3
-            user_que.score = sub.score,
+            user_que.score = sub.score
             user_que.penalty = (time_penalty + wa_penalty)
             user_que.save()
         except UserQuestion.DoesNotExist:
