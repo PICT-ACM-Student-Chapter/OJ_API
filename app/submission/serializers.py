@@ -33,7 +33,6 @@ class SubmissionSerializer(serializers.ModelSerializer):
     verdicts = serializers.SerializerMethodField()
 
     def get_verdicts(self, instance):
-        print('bvb')
         verdicts = instance.verdicts.order_by('test_case_id')
         return VerdictSerializer(verdicts,
                                  many=True).data  # many=True is required
