@@ -63,7 +63,8 @@ class LoginView(APIView):
         password = request.data.get('password')
 
         if not email or not password:
-            return Response(data={'error': 'invalid data'},status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'error': 'invalid data'},
+                            status=status.HTTP_400_BAD_REQUEST)
 
         # query to ems
         url = '{}/auth/login'.format(os.environ.get('EMS_API'))
@@ -74,13 +75,15 @@ class LoginView(APIView):
         res = requests.post(url, data=data)
 
         if res.status_code == status.HTTP_401_UNAUTHORIZED:
-            return Response(data=res.json(), status=status.HTTP_401_UNAUTHORIZED)
+            return Response(data=res.json(),
+                            status=status.HTTP_401_UNAUTHORIZED)
 
         # get user
         try:
             user = User.objects.get(username=email)
         except User.DoesNotExist:
-            user = User.objects.create_user(username=email, email=email, password=password)
+            user = User.objects.create_user(username=email,
+                                            email=email, password=password)
             user.first_name = res.json().get('user').get('fname')
             user.last_name = res.json().get('user').get('lname')
             user.save()
@@ -89,10 +92,12 @@ class LoginView(APIView):
             token = res.json().get('token')
             # query my events
             url = '{}/myevents'.format(os.environ.get('EMS_API'))
-            myevent_res = requests.get(url, headers={'Authorization': 'Bearer ' + token})
+            myevent_res = requests.get(url, headers={
+                'Authorization': 'Bearer ' + token})
 
             if myevent_res.status_code == status.HTTP_401_UNAUTHORIZED:
-                return Response(data=myevent_res.json(), status=status.HTTP_401_UNAUTHORIZED)
+                return Response(data=myevent_res.json(),
+                                status=status.HTTP_401_UNAUTHORIZED)
 
             events = myevent_res.json()
 
@@ -106,11 +111,14 @@ class LoginView(APIView):
                     try:
                         contest = Contest.objects.get(ems_slot_id=slot_id)
                     except Contest.DoesNotExist:
-                        capture_message("Contest not present for slot {}".format(slot_id), level="error")
+                        capture_message(
+                            "Contest not present for slot {}".format(slot_id),
+                            level="error")
                         continue
 
                     # create user contest
-                    uc, _ = UserContest.objects.get_or_create(user_id=user, contest_id=contest)
+                    uc, _ = UserContest.objects.get_or_create(
+                        user_id=user, contest_id=contest)
 
             # create jwt token
             refresh = RefreshToken.for_user(user)
