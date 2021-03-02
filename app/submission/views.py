@@ -13,10 +13,10 @@ from rest_framework.views import APIView
 
 from contest.models import ContestQue, Contest
 from core.models import UserQuestion, UserContest
-from submission.throttles import RunThrottle, RunRCThrottle, SubmitThrottle
 from question.models import Question, Testcase
 from submission.models import RunSubmission, Verdict, Submission
 from submission.permissions import IsRunInTime, IsRunSelf, IsSubmissionInTime
+from submission.throttles import RunThrottle, RunRCThrottle, SubmitThrottle
 from utils import b64_sub_str
 from .judge0_utils import submit_to_run, submit_to_submit, delete_submission
 from .serializers import RunSubmissionSerializer, SubmissionSerializer, \
@@ -346,5 +346,6 @@ class CallbackSubmission(APIView):
                 que_id=sub.ques_id_id,
                 user_contest=user_contest,
                 score=sub.score,
-                penalty=(time_penalty + wa_penalty) if sub.score > 0 else 0
+                penalty=round(time_penalty + wa_penalty, 2)
+                if sub.score > 0 else 0
             )
