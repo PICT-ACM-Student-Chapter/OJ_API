@@ -1,12 +1,5 @@
 version: '3'
 
-x-logging:
-  &default-logging
-  logging:
-    driver: json-file
-    options:
-      max-size: 100m
-
 services:
   judge0:
     image: judge0/judge0:latest
@@ -15,7 +8,6 @@ services:
     ports:
       - "5000:3000"
     privileged: true
-    <<: *default-logging
     restart: always
 
   workers:
@@ -24,7 +16,6 @@ services:
     volumes:
       - ./judge0.conf:/judge0.conf:ro
     privileged: true
-    <<: *default-logging
     restart: always
 
   db:
@@ -32,7 +23,6 @@ services:
     env_file: judge0.conf
     volumes:
       - postgres-data:/var/lib/postgresql/data/
-    <<: *default-logging
     restart: always
 
   redis:
@@ -44,7 +34,6 @@ services:
     env_file: judge0.conf
     volumes:
       - redis-data:/data
-    <<: *default-logging
     restart: always
 
 volumes:

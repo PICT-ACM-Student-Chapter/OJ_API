@@ -14,6 +14,7 @@ class Contest(models.Model):
     name = models.CharField(max_length=30)
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
+    ems_slot_id = models.CharField(max_length=30)
     banner_image = models.FileField(upload_to=upload_contest_banner, null=True)
     instructions = models.TextField()
     questions = models.ManyToManyField(to=Question, related_name='contests',
@@ -21,6 +22,11 @@ class Contest(models.Model):
 
     def __str__(self):
         return "{} (ID{})".format(self.name, self.id)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['ems_slot_id']),
+        ]
 
 
 class ContestQue(models.Model):

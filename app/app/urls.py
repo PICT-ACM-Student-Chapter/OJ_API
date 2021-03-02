@@ -24,6 +24,8 @@ from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework import permissions
 
+from core.views import LoginView
+
 
 def trigger_error(request):
     division_by_zero = 1 / 0
@@ -46,6 +48,7 @@ schema_view = get_schema_view(
 
 urlpatterns = [
                   url(r'^jet/', include('jet.urls', 'jet')),
+                  url(r'^login/', LoginView.as_view()),
                   url(r'^auth/', include('djoser.urls')),
                   url(r'^auth/', include('djoser.urls.jwt')),
                   path('admin/', admin.site.urls),

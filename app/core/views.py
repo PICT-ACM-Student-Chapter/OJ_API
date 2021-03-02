@@ -1,16 +1,24 @@
 import datetime
+import os
+
+import requests
 
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.http import HttpResponseRedirect
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework import status
 
+from contest.models import Contest
 from contest.serializers import UserContestSerializer
 from core.models import Language, UserContest
 from core.serializers import LanguageSerializer
+from sentry_sdk import capture_message
+from rest_framework_simplejwt.tokens import RefreshToken
 
 
 class LanguageList(generics.ListAPIView):
@@ -47,3 +55,68 @@ class Version(APIView):
 
     def get(self, request, *args, **kwargs):
         return HttpResponseRedirect(redirect_to='/swagger')
+
+
+class LoginView(APIView):
+    def post(self, request, *args, **kwargs):
+        email = request.data.get('email')
+        password = request.data.get('password')
+
+        if not email or not password:
+            return Response(data={'error': 'invalid data'},status=status.HTTP_400_BAD_REQUEST)
+
+        # query to ems
+        url = '{}/auth/login'.format(os.environ.get('EMS_API'))
+        data = {
+            'email': email,
+            'password': password
+        }
+        res = requests.post(url, data=data)
+
+        if res.status_code == status.HTTP_401_UNAUTHORIZED:
+            return Response(data=res.json(), status=status.HTTP_401_UNAUTHORIZED)
+
+        # get user
+        try:
+            user = User.objects.get(username=email)
+        except User.DoesNotExist:
+            user = User.objects.create_user(username=email, email=email, password=password)
+            user.first_name = res.json().get('user').get('fname')
+            user.last_name = res.json().get('user').get('lname')
+            user.save()
+
+        if res.status_code == status.HTTP_200_OK:
+            token = res.json().get('token')
+            # query my events
+            url = '{}/myevents'.format(os.environ.get('EMS_API'))
+            myevent_res = requests.get(url, headers={'Authorization': 'Bearer ' + token})
+
+            if myevent_res.status_code == status.HTTP_401_UNAUTHORIZED:
+                return Response(data=myevent_res.json(), status=status.HTTP_401_UNAUTHORIZED)
+
+            events = myevent_res.json()
+
+            for event in events:
+                try:
+                    slot_id = event['slot_id']['_id']
+                except TypeError:
+                    slot_id = None
+
+                if slot_id:
+                    try:
+                        contest = Contest.objects.get(ems_slot_id=slot_id)
+                    except Contest.DoesNotExist:
+                        capture_message("Contest not present for slot {}".format(slot_id), level="error")
+                        continue
+
+                    # create user contest
+                    uc, _ = UserContest.objects.get_or_create(user_id=user, contest_id=contest)
+
+            # create jwt token
+            refresh = RefreshToken.for_user(user)
+
+            data = {
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+            }
+            return Response(data=data, status=status.HTTP_200_OK)
