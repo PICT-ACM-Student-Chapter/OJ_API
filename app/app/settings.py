@@ -335,3 +335,5 @@ if DEBUG:
     DEBUG_TOOLBAR_CONFIG = {
         'SHOW_TOOLBAR_CALLBACK': lambda _request: DEBUG
     }
+
+DATA_UPLOAD_MAX_MEMORY_SIZE = None
