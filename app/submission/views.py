@@ -16,7 +16,7 @@ from core.models import UserQuestion, UserContest
 from question.models import Question, Testcase
 from submission.models import RunSubmission, Verdict, Submission
 from submission.permissions import IsRunInTime, IsRunSelf, IsSubmissionInTime
-from utils import b64_sub_str
+from utils import b64_sub_str, b64_encode
 from .judge0_utils import submit_to_run, submit_to_submit, delete_submission
 from .serializers import RunSubmissionSerializer, SubmissionSerializer, \
     SubmissionListSerializer, RunRCSerializer
@@ -80,7 +80,7 @@ class RunRC(CreateAPIView):
         serializer.save(user_id=self.request.user, code='TkE=',
                         lang_id=fq.question.correct_code_lang)
         # 'NA' b64
-        code = fq.question.correct_code
+        code = b64_encode(fq.question.correct_code)
         lang = fq.question.correct_code_lang
 
         submit_to_run(
