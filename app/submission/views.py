@@ -17,6 +17,7 @@ from question.models import Question, Testcase
 from submission.models import RunSubmission, Verdict, Submission
 from submission.permissions import IsRunInTime, IsRunSelf, IsSubmissionInTime
 from utils import b64_sub_str, b64_encode
+from submission.throttles import RunThrottle, RunRCThrottle, SubmitThrottle
 from .judge0_utils import submit_to_run, submit_to_submit, delete_submission
 from .serializers import RunSubmissionSerializer, SubmissionSerializer, \
     SubmissionListSerializer, RunRCSerializer
@@ -42,6 +43,7 @@ STATUSES = {
 class Run(CreateAPIView):
     serializer_class = RunSubmissionSerializer
     permission_classes = [IsRunInTime]
+    throttle_classes = [RunThrottle]
 
     def perform_create(self, serializer):
         serializer.save(user_id=self.request.user)
@@ -64,6 +66,7 @@ class Run(CreateAPIView):
 class RunRC(CreateAPIView):
     serializer_class = RunRCSerializer
     permission_classes = [IsSubmissionInTime]
+    throttle_classes = [RunRCThrottle]
 
     def perform_create(self, serializer):
         contest_que = ContestQue.objects.filter(
@@ -109,6 +112,7 @@ class CheckRunStatus(RetrieveAPIView):
 class Submit(CreateAPIView):
     serializer_class = SubmissionSerializer
     permission_classes = [IsSubmissionInTime]
+    throttle_classes = [SubmitThrottle]
 
     def perform_create(self, serializer):
         contest = Contest.objects.filter(id=self.kwargs['contest_id']).first()
@@ -331,7 +335,7 @@ class CallbackSubmission(APIView):
             # Total penalty
             #  Query3
             user_que.score = sub.score
-            user_que.penalty = (time_penalty + wa_penalty)
+            user_que.penalty = round(time_penalty + wa_penalty, 2)
             user_que.save()
         except UserQuestion.DoesNotExist:
             user_contest = UserContest.objects.get(
@@ -342,5 +346,6 @@ class CallbackSubmission(APIView):
                 que_id=sub.ques_id_id,
                 user_contest=user_contest,
                 score=sub.score,
-                penalty=(time_penalty + wa_penalty) if sub.score > 0 else 0
+                penalty=round(time_penalty + wa_penalty, 2)
+                if sub.score > 0 else 0
             )
