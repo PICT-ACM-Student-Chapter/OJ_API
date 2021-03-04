@@ -198,7 +198,7 @@ class CallbackSubmission(APIView):
 
     def put(self, request, verdict_id):
         # Save the verdict
-        print(request.data['status']['id']['description'])
+        print(request.data['status']['description'])
         status = request.data['status']['id']
         # Query1 (defined and called)
         Verdict.objects.filter(id=verdict_id).update(
