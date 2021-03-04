@@ -89,41 +89,36 @@ class LoginView(APIView):
             user.save()
 
         if res.status_code == status.HTTP_200_OK:
-            contest_id_test = 'test-cc'
-            contest = Contest.objects.get(id=contest_id_test)
-            uc, _ = UserContest.objects.get_or_create(user_id=user,
-                                                      contest_id=contest)
-
-            # token = res.json().get('token')
+            token = res.json().get('token')
             # query my events
-            # url = '{}/myevents'.format(os.environ.get('EMS_API'))
-            # myevent_res = requests.get(url, headers={
-            #     'Authorization': 'Bearer ' + token})
-            #
-            # if myevent_res.status_code == status.HTTP_401_UNAUTHORIZED:
-            #     return Response(data=myevent_res.json(),
-            #                     status=status.HTTP_401_UNAUTHORIZED)
-            #
-            # events = myevent_res.json()
-            #
-            # for event in events:
-            #     try:
-            #         slot_id = event['slot_id']['_id']
-            #     except TypeError:
-            #         slot_id = None
-            #
-            #     if slot_id:
-            #         try:
-            #             contest = Contest.objects.get(ems_slot_id=slot_id)
-            #         except Contest.DoesNotExist:
-            #             capture_message(
-            #                 "Contest not present for slot {}".format(slot_id),
-            #                 level="error")
-            #             continue
-            #
-            #         # create user contest
-            #         uc, _ = UserContest.objects.get_or_create(
-            #             user_id=user, contest_id=contest)
+            url = '{}/myevents'.format(os.environ.get('EMS_API'))
+            myevent_res = requests.get(url, headers={
+                'Authorization': 'Bearer ' + token})
+
+            if myevent_res.status_code == status.HTTP_401_UNAUTHORIZED:
+                return Response(data=myevent_res.json(),
+                                status=status.HTTP_401_UNAUTHORIZED)
+
+            events = myevent_res.json()
+
+            for event in events:
+                try:
+                    slot_id = event['slot_id']['_id']
+                except TypeError:
+                    slot_id = None
+
+                if slot_id:
+                    try:
+                        contest = Contest.objects.get(ems_slot_id=slot_id)
+                    except Contest.DoesNotExist:
+                        capture_message(
+                            "Contest not present for slot {}".format(slot_id),
+                            level="error")
+                        continue
+
+                    # create user contest
+                    uc, _ = UserContest.objects.get_or_create(
+                        user_id=user, contest_id=contest)
 
             # create jwt token
             refresh = RefreshToken.for_user(user)
