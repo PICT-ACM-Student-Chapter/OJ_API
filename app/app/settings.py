@@ -326,13 +326,13 @@ MAX_RUN_OUTPUT_LENGTH = 500
 
 # DEV ENV
 
-if DEBUG:
-    MIDDLEWARE.insert(0, 'silk.middleware.SilkyMiddleware', )
-
-    INSTALLED_APPS.insert(0, 'silk')
-
-    DEBUG_TOOLBAR_CONFIG = {
-        'SHOW_TOOLBAR_CALLBACK': lambda _request: DEBUG
-    }
+# if DEBUG:
+#     MIDDLEWARE.insert(0, 'silk.middleware.SilkyMiddleware', )
+#
+#     INSTALLED_APPS.insert(0, 'silk')
+#
+#     DEBUG_TOOLBAR_CONFIG = {
+#         'SHOW_TOOLBAR_CALLBACK': lambda _request: DEBUG
+#     }
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = None
