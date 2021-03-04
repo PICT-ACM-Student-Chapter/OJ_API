@@ -70,6 +70,4 @@ if settings.DEBUG:
                     url(r'^redoc/$', schema_view.with_ui('redoc',
                                                          cache_timeout=0),
                         name='schema-redoc'),
-
-                    url(r'^silk/', include('silk.urls', namespace='silk'))
                     ]
