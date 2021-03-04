@@ -194,7 +194,6 @@ class CallbackRunNow(APIView):
         return JsonResponse({})
 
 
-# TODO: Caching (Query optimization done)
 class CallbackSubmission(APIView):
 
     def put(self, request, verdict_id):
@@ -257,13 +256,26 @@ class CallbackSubmission(APIView):
                     submission.status = 'AC'
                     # Query5
                     submission.save()
-                    self.update_user_question(submission)  # TODO: change name
+                    self.update_user_question(submission)
                 else:
-                    # TODO: Write logic for internal err and CE
-                    if status == 'CE':
-                        submission.status = 'CE'
-                    else:
-                        submission.status = 'WA'
+                    # Priority: RTE > TLE > WA > AC
+                    submission.status = 'IE'
+                    for v in verdicts:
+                        if v.status == 'CE':
+                            submission.status = 'CE'
+                            break
+                        # Check for all types of RTE
+                        if v.status in ['SIGSEGV', 'SIGXFSZ', 'SIGFPE',
+                                        'SIGABRT', 'NZEC', 'RTE']:
+                            submission.status = 'RTE'
+                            break
+                        if v.status == 'TLE':
+                            submission.status = 'TLE'
+                            break
+                        if v.status == 'WA':
+                            submission.status = 'WA'
+                            break
+
                     # Query5
                     submission.save()
                     self.update_user_question(submission)
