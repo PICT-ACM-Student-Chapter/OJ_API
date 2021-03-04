@@ -207,7 +207,9 @@ class CallbackSubmission(APIView):
             status=STATUSES[status],
         )
 
-        delete_submission(request.data['token'])
+        request._mutable = True
+        request = {}
+        # delete_submission(request.data['token'])
 
         # update single verdict from cache
         submission = Verdict.objects.get(id=verdict_id).submission
