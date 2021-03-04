@@ -5,7 +5,7 @@ from django.conf import settings
 from django.core.cache import cache
 from django.forms import model_to_dict
 from django.http import JsonResponse
-from rest_framework import exceptions
+from rest_framework import exceptions, status
 from rest_framework.generics import CreateAPIView, RetrieveAPIView, \
     ListAPIView
 from rest_framework.response import Response
@@ -314,7 +314,11 @@ class CallbackSubmission(APIView):
                 submission.save()
                 self.update_user_question(submission)
 
-        return JsonResponse({})
+        data = {
+            "status": "success"
+        }
+        print(data)
+        return Response(data={}, status=200)
 
     @staticmethod
     def update_user_question(sub):
