@@ -264,7 +264,8 @@ class CallbackSubmission(APIView):
                             submission.status = 'CE'
                             break
                         # Check for all types of RTE
-                        if v.status in ['SIGSEGV', 'SIGXFSZ', 'SIGFPE', 'SIGABRT', 'NZEC', 'RTE']:
+                        if v.status in ['SIGSEGV', 'SIGXFSZ', 'SIGFPE',
+                                        'SIGABRT', 'NZEC', 'RTE']:
                             submission.status = 'RTE'
                             break
                         if v.status == 'TLE':
