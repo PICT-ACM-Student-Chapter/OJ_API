@@ -35,9 +35,18 @@ class SubmissionModelAdmin(admin.ModelAdmin):
 
 
 class RunSubmissionModelAdmin(admin.ModelAdmin):
+    list_display = ('user_id', 'status', 'exec_time', 'mem')
+    list_filter = ('user_id', 'status')
     formfield_overrides = {
         models.TextField: {'widget': AdminMartorWidget},
     }
+    readonly_fields = ["user_code", ]
+
+    def user_code(self, obj):
+        base64_bytes = obj.code.encode("ascii")
+        sample_string_bytes = base64.b64decode(base64_bytes)
+        sample_string = sample_string_bytes.decode("ascii")
+        return format_html('<pre>{}</pre>', sample_string)
 
 
 # Register your models here.
