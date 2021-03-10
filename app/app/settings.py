@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'submission',
     'redisboard',
     'djoser',
+    'csvexport'
 ]
 
 MIDDLEWARE = [

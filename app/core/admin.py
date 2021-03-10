@@ -2,6 +2,7 @@
 from django.contrib import admin
 
 from core.models import Language, UserContest, UserQuestion
+from csvexport.actions import csvexport
 
 admin.site.site_header = 'PASC OJ Management Portal'
 admin.site.site_title = 'PASC OJ Management Portal'
@@ -20,6 +21,7 @@ class UserContestAdmin(admin.ModelAdmin):
     inlines = [
         UserQuestionInline,
     ]
+    actions = [csvexport]
 
 
 admin.site.register(Language)
