@@ -16,18 +16,18 @@ So ensure that you have Docker and Docker Compose installed on your system
 For installation instructions refer: https://docs.docker.com/install/
 
 To run test cases:
-```sh
+```bash
 docker-compose run app sh -c "python manage.py test && flake8"
 ```
 
 ## Starting the Server
 
 Start the PostgreSQL server first:
-```sh
+```bash
 docker-compose up db
 ```
 Then start whole project:
-```sh
+```bash
 docker-compose up
 ```
 
