@@ -43,10 +43,14 @@ docker-compose run app sh -c "command here"
 
 * Create Super User: 
 
-    `docker-compose run app sh -c "python manage.py create superuser"`
+    ```bash
+    docker-compose run app sh -c "python manage.py create superuser"
+    ```
 * Add New App: 
 
-    `docker-compose run app sh -c "python manage.py startapp polls"`
+    ```bash
+        docker-compose run app sh -c "python manage.py startapp polls"
+    ```
 
 ## API Documentation
 API documentation is done using swagger
