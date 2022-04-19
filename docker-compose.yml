@@ -14,10 +14,10 @@ services:
     command: >
       sh -c " python manage.py wait_for_db &&
               python manage.py runserver 0.0.0.0:8000"
-    environment:
-      - JUDGE0_BASE_URL=http://172.17.0.1:5000
-      - JUDGE0_RUN_CALLBACK_URL=http://172.17.0.1:8000/callback/run
-      - JUDGE0_SUBMIT_CALLBACK_URL=http://172.17.0.1:8000/callback/submit
+    # environment:
+    #   - JUDGE0_BASE_URL=http://172.17.0.1:5000
+    #   - JUDGE0_RUN_CALLBACK_URL=http://172.17.0.1:8000/callback/run
+    #   - JUDGE0_SUBMIT_CALLBACK_URL=http://172.17.0.1:8000/callback/submit
     env_file:
       - .env
     depends_on:
