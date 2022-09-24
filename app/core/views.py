@@ -91,7 +91,7 @@ class LoginView(APIView):
         if res.status_code == status.HTTP_200_OK:
             token = res.json().get('token')
             # query my events
-            url = 'http://{}/events'.format(os.environ.get('EMS_API'))
+            url = 'http://{}/user_events'.format(os.environ.get('EMS_API'))
             myevent_res = requests.get(url, headers={
                 'Authorization': 'Bearer ' + token})
 
@@ -99,11 +99,11 @@ class LoginView(APIView):
                 return Response(data=myevent_res.json(),
                                 status=status.HTTP_401_UNAUTHORIZED)
 
-            events = myevent_res.json()
+            events = myevent_res.json()["events"]
 
             for event in events:
                 try:
-                    slot_id = event['slot_id']['_id']
+                    slot_id = event['fk_slot']
                 except TypeError:
                     slot_id = None
 
