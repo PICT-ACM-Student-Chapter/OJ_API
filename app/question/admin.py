@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.db import models
 from martor.widgets import AdminMartorWidget
 
-from question.models import Question, Testcase
+from question.models import Question, Testcase, HackingCode
 
 
 # Register your models here.
@@ -21,6 +21,10 @@ class QuestionModelAdmin(admin.ModelAdmin):
     list_display = ('name', 'score')
     search_fields = ('name', 'score')
 
+class HackingCodesModelAdmin(admin.ModelAdmin):
+    formfield_overrides = {
+        models.TextField: {'widget': AdminMartorWidget},
+    }
 
 class TestcaseAdmin(admin.ModelAdmin):
     list_display = ('__str__', 'que_id', 'is_public')
@@ -30,3 +34,4 @@ class TestcaseAdmin(admin.ModelAdmin):
 # Register your models here.
 admin.site.register(Question, QuestionModelAdmin)
 admin.site.register(Testcase, TestcaseAdmin)
+admin.site.register(HackingCode, HackingCodesModelAdmin)

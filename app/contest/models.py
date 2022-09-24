@@ -15,8 +15,7 @@ class Contest(models.Model):
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     ems_slot_id = models.CharField(max_length=30)
-    banner_image = models.FileField(
-        upload_to=upload_contest_banner, blank=True)
+    banner_image = models.FileField(upload_to=upload_contest_banner, null=True, blank=True)
     instructions = models.TextField()
     questions = models.ManyToManyField(to=Question, related_name='contests',
                                        through='ContestQue')
@@ -35,6 +34,7 @@ class ContestQue(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     is_binary = models.BooleanField(default=False)
     is_reverse_coding = models.BooleanField(default=False)
+    is_hacking = models.BooleanField(default=False)
     order = models.IntegerField()
 
     class Meta:
