@@ -67,7 +67,7 @@ class LoginView(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
         # query to ems
-        url = '{}/auth/login'.format(os.environ.get('EMS_API'))
+        url = 'http://{}/user/signin'.format(os.environ.get('EMS_API'))
         data = {
             'email': email,
             'password': password
@@ -84,14 +84,14 @@ class LoginView(APIView):
         except User.DoesNotExist:
             user = User.objects.create_user(username=email,
                                             email=email, password=password)
-            user.first_name = res.json().get('user').get('fname')
-            user.last_name = res.json().get('user').get('lname')
+            user.first_name = res.json().get('user').get('first_name')
+            user.last_name = res.json().get('user').get('last_name')
             user.save()
 
         if res.status_code == status.HTTP_200_OK:
             token = res.json().get('token')
             # query my events
-            url = '{}/events'.format(os.environ.get('EMS_API'))
+            url = 'http://{}/events'.format(os.environ.get('EMS_API'))
             myevent_res = requests.get(url, headers={
                 'Authorization': 'Bearer ' + token})
 
