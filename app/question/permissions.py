@@ -30,7 +30,11 @@ class IsQuestionListInTime(permissions.BasePermission):
     message = "Access denied. Reason: outside contest time"
 
     def has_permission(self, request, view):
+        obj = UserContest.objects.filter(
+            contest_id__id=view.kwargs['contest_id'])
+        print(obj.all().values())
         curr_time = datetime.datetime.now(tz=pytz.UTC)
+        print(curr_time)
         return UserContest.objects.filter(
             contest_id__id=view.kwargs['contest_id'],
             contest_id__start_time__lte=curr_time,

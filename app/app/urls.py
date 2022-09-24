@@ -43,23 +43,23 @@ schema_view = get_schema_view(
     ),
     public=True,
     permission_classes=(permissions.AllowAny,),
-    url=os.environ.get('BASE_URL', 'https://api.onlinejudge.ml')
+    url=os.environ.get('BASE_URL', 'http://localhost:8000')
 )
 
 urlpatterns = [
-                  url(r'^jet/', include('jet.urls', 'jet')),
-                  url(r'^login/', LoginView.as_view()),
-                  url(r'^auth/', include('djoser.urls')),
-                  url(r'^auth/', include('djoser.urls.jwt')),
-                  path('admin/', admin.site.urls),
-                  path('martor/', include('martor.urls')),
-                  path('contests/', include('contest.urls')),
-                  path('', include('core.urls')),
-                  path('questions/', include('question.urls')),
-                  path('', include('submission.urls')),
-                  path('sentry-debug/', trigger_error)
-              ] + static(settings.STATIC_URL,
-                         document_root=settings.STATIC_ROOT)
+    url(r'^jet/', include('jet.urls', 'jet')),
+    url(r'^login/', LoginView.as_view()),
+    url(r'^auth/', include('djoser.urls')),
+    url(r'^auth/', include('djoser.urls.jwt')),
+    path('admin/', admin.site.urls),
+    path('martor/', include('martor.urls')),
+    path('contests/', include('contest.urls')),
+    path('', include('core.urls')),
+    path('questions/', include('question.urls')),
+    path('', include('submission.urls')),
+    path('sentry-debug/', trigger_error)
+] + static(settings.STATIC_URL,
+           document_root=settings.STATIC_ROOT)
 if settings.DEBUG:
     urlpatterns += [url(r'^swagger(?P<format>\.json|\.yaml)$',
                         schema_view.without_ui(cache_timeout=0),

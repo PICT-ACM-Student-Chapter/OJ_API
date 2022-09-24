@@ -91,7 +91,7 @@ class LoginView(APIView):
         if res.status_code == status.HTTP_200_OK:
             token = res.json().get('token')
             # query my events
-            url = '{}/myevents'.format(os.environ.get('EMS_API'))
+            url = '{}/events'.format(os.environ.get('EMS_API'))
             myevent_res = requests.get(url, headers={
                 'Authorization': 'Bearer ' + token})
 

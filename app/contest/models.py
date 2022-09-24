@@ -15,7 +15,8 @@ class Contest(models.Model):
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     ems_slot_id = models.CharField(max_length=30)
-    banner_image = models.FileField(upload_to=upload_contest_banner, null=True)
+    banner_image = models.FileField(
+        upload_to=upload_contest_banner, blank=True)
     instructions = models.TextField()
     questions = models.ManyToManyField(to=Question, related_name='contests',
                                        through='ContestQue')
