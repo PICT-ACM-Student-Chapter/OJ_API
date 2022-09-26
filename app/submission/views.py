@@ -1,5 +1,6 @@
 # Create your views here.
 import os
+from re import M
 
 from django.conf import settings
 from django.core.cache import cache
@@ -17,9 +18,9 @@ from question.models import Question, Testcase
 from submission.models import RunSubmission, Verdict, Submission
 from submission.permissions import IsRunInTime, IsRunSelf, IsSubmissionInTime
 from utils import b64_sub_str, b64_encode
-from submission.throttles import RunThrottle, RunRCThrottle, SubmitThrottle
+from submission.throttles import RunHackThrottle, RunThrottle, RunRCThrottle, SubmitThrottle
 from .judge0_utils import submit_to_run, submit_to_submit, delete_submission
-from .serializers import RunSubmissionSerializer, SubmissionSerializer, \
+from .serializers import RunHackSerializer, RunSubmissionSerializer, SubmissionSerializer, \
     SubmissionListSerializer, RunRCSerializer
 
 STATUSES = {
@@ -94,6 +95,25 @@ class RunRC(CreateAPIView):
                            serializer.data['id']))
 
 
+class RunHack(CreateAPIView):
+    serializer_class = RunHackSerializer
+    permission_classes = [IsSubmissionInTime]
+    throttle_classes = [RunHackThrottle]
+
+    def perform_create(self, serializer):
+        contest_que = ContestQue.objects.filter(
+            contest__id=self.kwargs['contest_id'],
+            question__id=self.kwargs['ques_id'],
+            is_hacking=True
+        )
+        fq = contest_que.first()
+
+        if not fq:
+            raise exceptions.NotFound("No Question Found")
+
+        serializer.save()
+
+
 class CheckRunStatus(RetrieveAPIView):
     serializer_class = RunSubmissionSerializer
     lookup_url_kwarg = 'id'
@@ -121,6 +141,8 @@ class Submit(CreateAPIView):
         sub = serializer.save(user_id=self.request.user, contest=contest,
                               ques_id=question)
 
+        print("sub")
+        print(sub)
         submit_to_submit(
             sub,
             model_to_dict(serializer.validated_data['lang_id']),
@@ -198,6 +220,7 @@ class CallbackSubmission(APIView):
 
     def put(self, request, verdict_id):
         # Save the verdict
+        print(dict(request.data))
         print(request.data['status']['description'])
         status = request.data['status']['id']
         # Query1 (defined and called)
@@ -263,6 +286,7 @@ class CallbackSubmission(APIView):
                     # Priority: RTE > TLE > WA > AC
                     submission.status = 'IE'
                     for v in verdicts:
+                        print("--->" + v.status)
                         if v.status == 'CE':
                             submission.status = 'CE'
                             break

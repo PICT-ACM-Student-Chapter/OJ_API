@@ -9,5 +9,9 @@ class RunRCThrottle(UserRateThrottle):
     scope = "run_rc"
 
 
+class RunHackThrottle(UserRateThrottle):
+    scope = "run_hack"
+
+
 class SubmitThrottle(UserRateThrottle):
     scope = "submit"

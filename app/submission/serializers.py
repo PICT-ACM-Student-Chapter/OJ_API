@@ -1,3 +1,5 @@
+from dataclasses import field
+from pyexpat import model
 from rest_framework import serializers
 
 from .models import RunSubmission, Submission, Verdict
@@ -80,4 +82,31 @@ class RunRCSerializer(serializers.ModelSerializer):
             'stderr': {'required': False, 'read_only': True},
             'exec_time': {'required': False, 'read_only': True},
             'mem': {'required': False, 'read_only': True},
+        }
+
+
+class HackingCodeSerializer(serializers.ModelSerializer):
+    pass
+
+
+class RunHackSerializer(serializers.ModelSerializer):
+    hacking_codes = serializers.SerializerMethodField()
+
+    def get_verdicts(self, instance):
+        verdicts = instance.verdicts.order_by('test_case_id')
+        return VerdictSerializer(verdicts,
+                                 many=True).data
+
+    class Meta:
+        model = RunSubmission
+        fields = ['id', 'lang_id', 'status', 'code', 'stdin', 'stdout',
+                  'stderr', 'exec_time', 'mem']
+        extra_kwargs = {
+            'id': {'required': False, 'read_only': True},
+            'status': {'required': False, 'read_only': True},
+            'stdout': {'required': False, 'read_only': True},
+            'stderr': {'required': False, 'read_only': True},
+            'exec_time': {'required': False, 'read_only': True},
+            'mem': {'required': False, 'read_only': True},
+            'code': {'write_only': True}
         }
