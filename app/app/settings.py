@@ -282,6 +282,7 @@ REST_FRAMEWORK = {
         "run": "15/min",
         "run_rc": "20/min",
         "submit": "5/min",
+        "run_hack": "20/min",
     },
 }
 

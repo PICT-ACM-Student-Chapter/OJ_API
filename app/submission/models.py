@@ -1,4 +1,6 @@
 # Create your models here.
+from email.policy import default
+from unittest.util import _MAX_LENGTH
 from django.contrib.auth.models import User
 from django.db import models
 
@@ -24,7 +26,7 @@ STATUSES = [
     ('IE', 'Internal Error'),
     ('EFE', 'Exec Format Error'),
 ]
-
+PENDING = 'PENDING'
 FINAL_STATUSES = [
     ('IN_QUEUE', 'In Queue'),
     ('AC', 'Accepted'),
@@ -32,6 +34,12 @@ FINAL_STATUSES = [
     ('CE', 'Compilation Error'),
     ('IE', 'Internal Error'),
     ('WA', 'Anything else'),
+]
+
+HACK_STATUSES = [
+    ('PENDING', 'pending'),
+    ('SUCCESS', 'Hack Successful'),
+    ('FAILURE', 'Hack Unsuccessful'),
 ]
 
 
@@ -73,3 +81,13 @@ class RunSubmission(models.Model):
     stderr = models.TextField(null=True, blank=True)
     exec_time = models.CharField(max_length=10, null=True)
     mem = models.CharField(max_length=10, null=True)
+
+
+class HackSubmission(models.Model):
+    id = models.AutoField(primary_key=True)
+    correct_code_submission_id = models.ForeignKey(
+        to=RunSubmission, on_delete=models.CASCADE, related_name='correct_code_submission')
+    incorrect_code_submission_id = models.ForeignKey(
+        to=RunSubmission, on_delete=models.CASCADE, related_name='incorrect_code_submission')
+    status = models.CharField(
+        max_length=32, choices=HACK_STATUSES, default=PENDING)

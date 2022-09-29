@@ -5,7 +5,7 @@ from django.db import models
 from django.utils.html import format_html
 from martor.widgets import AdminMartorWidget
 
-from submission.models import Submission, Verdict, RunSubmission
+from submission.models import HackSubmission, Submission, Verdict, RunSubmission
 
 
 # Register your models here.
@@ -53,3 +53,4 @@ class RunSubmissionModelAdmin(admin.ModelAdmin):
 admin.site.register(Submission, SubmissionModelAdmin)
 admin.site.register(RunSubmission, RunSubmissionModelAdmin)
 admin.site.register(Verdict)
+admin.site.register(HackSubmission)

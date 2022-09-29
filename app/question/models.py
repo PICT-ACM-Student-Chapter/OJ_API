@@ -36,17 +36,15 @@ class Question(models.Model):
 
 
 class HackingCode(models.Model):
-    fk_qid = models.ForeignKey(
-        to="question.Question", null=False, on_delete=models.CASCADE)
+    question = models.ForeignKey(
+        Question, null=False, on_delete=models.CASCADE)
     correct_code = models.TextField(blank=True, null=True)
-    correct_code_lang = models.ForeignKey(to='core.Language', null=True,
-                                          on_delete=models.SET_NULL, related_name="correct_code_lang")
+    code_lang = models.ForeignKey(to='core.Language', null=True,
+                                  on_delete=models.SET_NULL, related_name="code_lang")
     incorrect_code = models.TextField(blank=True, null=True)
-    incorrect_code_lang = models.ForeignKey(to='core.Language', null=True,
-                                            on_delete=models.SET_NULL, related_name="incorrect_code_lang")
 
     def __str__(self):
-        return "{} - CC{} - IC{}".format(self.fk_qid, self.correct_code, self.incorrect_code)
+        return "{} - {}".format(self.question, self.code_lang)
 
 
 def validate_testcase(value):
