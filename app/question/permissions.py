@@ -12,6 +12,16 @@ class IsQuestionAllowed(permissions.BasePermission):
                                           contest_id__in=obj.contests.all()
                                           ).count() > 0
 
+class IsHackingQuestionAllowed(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        return UserContest.objects.filter(user_id=request.user.id,
+                                          contest_id__in=obj.question.contests.all()
+                                          ).count() > 0
+
+
+
+
+
 
 class IsInTime(permissions.BasePermission):
     message = "Access denied. Reason: outside contest time"
