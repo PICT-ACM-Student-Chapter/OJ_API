@@ -85,6 +85,9 @@ class RunSubmission(models.Model):
 
 class HackSubmission(models.Model):
     id = models.AutoField(primary_key=True)
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    contest_id = models.ForeignKey(Contest, on_delete=models.CASCADE)
+    ques_id = models.ForeignKey(Question, on_delete=models.CASCADE)
     correct_code_submission_id = models.ForeignKey(
         to=RunSubmission, on_delete=models.CASCADE, related_name='correct_code_submission')
     incorrect_code_submission_id = models.ForeignKey(

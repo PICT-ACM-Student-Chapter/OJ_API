@@ -105,10 +105,13 @@ class RunHackSerializer(serializers.ModelSerializer):
 class HackSubmissionSerializer(serializers.ModelSerializer):
     class Meta:
         model = HackSubmission
-        fields = ['id', 'correct_code_submission_id',
+        fields = ['id', 'correct_code_submission_id', 'user_id', 'contest_id', 'ques_id',
                   'incorrect_code_submission_id', 'status']
         extra_kwargs = {
             'id': {'required': False, 'read_only': True},
             'correct_code_submission_id': {'required': True},
-            'incorrect_code_submission_id': {'required': True}
+            'incorrect_code_submission_id': {'required': True},
+            'user_id': {'required': True},
+            'contest_id': {'required': True},
+            'ques_id': {'required': True},
         }

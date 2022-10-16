@@ -158,6 +158,9 @@ class RunHack(CreateAPIView):
                            serializer.data['id'])
         )
         data = {
+            'user_id': self.request.user.id,
+            'contest_id': kwargs['contest_id'],
+            'ques_id': kwargs['ques_id'],
             'correct_code_submission_id': correct_code_submission_id,
             'incorrect_code_submission_id': incorrect_code_submission_id,
         }
@@ -208,6 +211,26 @@ class CheckHackStatus(APIView):
                     HackSubmission.objects.filter(
                         id=self.kwargs['id']).update(status='SUCCESS')
                     sub.status = 'SUCCESS'
+                    try:
+                        user_que = UserQuestion.objects.get(
+                            que_id=sub.ques_id_id,
+                            user_contest__user_id_id=sub.user_id_id,
+                            user_contest__contest_id_id=sub.contest_id
+                        )
+
+                        if user_que.score < (sub.ques_id.score):
+                            user_que.score = sub.ques_id.score
+                            user_que.save()
+                    except UserQuestion.DoesNotExist:
+                        user_contest = UserContest.objects.get(
+                            user_id_id=sub.user_id_id,
+                            contest_id_id=sub.contest_id,
+                        )
+                        UserQuestion.objects.create(
+                            que_id=sub.ques_id_id,
+                            user_contest=user_contest,
+                            score=sub.ques_id.score,
+                        )
 
                 else:
                     HackSubmission.objects.filter(
