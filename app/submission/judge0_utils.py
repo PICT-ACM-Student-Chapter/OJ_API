@@ -37,7 +37,7 @@ def submit_to_run(lang, code, stdin, callback_url):
     res = requests.post(url, json=data, headers=j0_headers)
     if res.status_code == HTTP_201_CREATED and 'token' in res.json():
         return res.json()['token']
-    raise Exception('Judge0 Error:', res)
+    raise Exception('Judge0 Error:', res.json())
 
 
 #

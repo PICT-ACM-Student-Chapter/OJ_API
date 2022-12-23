@@ -27,7 +27,7 @@ class HackingQuestionSerializer(serializers.ModelSerializer):
 class ContestQuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContestQue
-        fields = ['is_binary', 'is_reverse_coding', 'order']
+        fields = ['is_binary', 'is_reverse_coding', 'is_hacking', 'order']
 
 
 class QuestionListSerializer(serializers.ModelSerializer):
