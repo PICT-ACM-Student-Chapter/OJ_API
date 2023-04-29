@@ -99,7 +99,7 @@ class LoginView(APIView):
                 return Response(data=myevent_res.json(),
                                 status=status.HTTP_401_UNAUTHORIZED)
 
-            events = myevent_res.json()
+            events = myevent_res.json()['events']
 
             for event in events:
                 try:
