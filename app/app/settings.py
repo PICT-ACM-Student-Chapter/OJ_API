@@ -108,7 +108,7 @@ DATABASES = {
         'USER': os.environ.get('DB_USER'),
         'PASSWORD': os.environ.get('DB_PASS'),
         'PORT': os.environ.get('DB_PORT', 5432),
-        'OPTIONS': {'sslmode': 'require'},
+        # 'OPTIONS': {'sslmode': 'require'},
     }
 }
 
@@ -300,7 +300,7 @@ SWAGGER_SETTINGS = {
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://redis:6379/1",
+        "LOCATION": "redis://judge0-redis-service:6379/1",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
             "PASSWORD": "YourPasswordHere1234"
