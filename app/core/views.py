@@ -84,8 +84,8 @@ class LoginView(APIView):
         except User.DoesNotExist:
             user = User.objects.create_user(username=email,
                                             email=email, password=password)
-            user.first_name = res.json().get('user').get('fname')
-            user.last_name = res.json().get('user').get('lname')
+            user.first_name = res.json().get('user').get('first_name')
+            user.last_name = res.json().get('user').get('last_name')
             user.save()
 
         if res.status_code == status.HTTP_200_OK:
