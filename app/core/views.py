@@ -103,7 +103,7 @@ class LoginView(APIView):
 
             for event in events:
                 try:
-                    slot_id = event['slot_id']['_id']
+                    slot_id = event['fk_slot']
                 except TypeError:
                     slot_id = None
 
