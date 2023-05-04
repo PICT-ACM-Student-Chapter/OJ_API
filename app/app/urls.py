@@ -43,7 +43,7 @@ schema_view = get_schema_view(
     ),
     public=True,
     permission_classes=(permissions.AllowAny,),
-    url=os.environ.get('BASE_URL', 'http://localhost:8000')
+    url=os.environ.get('BASE_URL', 'http://10.10.14.77:30000/')
 )
 
 urlpatterns = [

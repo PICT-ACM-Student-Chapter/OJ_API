@@ -67,7 +67,7 @@ class LoginView(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
         # query to ems
-        url = 'http://{}/user/signin'.format(os.environ.get('EMS_API'))
+        url = '{}/user/signin'.format(os.environ.get('EMS_API'))
         data = {
             'email': email,
             'password': password
@@ -91,7 +91,7 @@ class LoginView(APIView):
         if res.status_code == status.HTTP_200_OK:
             token = res.json().get('token')
             # query my events
-            url = 'http://{}/user_events'.format(os.environ.get('EMS_API'))
+            url = '{}/user_events'.format(os.environ.get('EMS_API'))
             myevent_res = requests.get(url, headers={
                 'Authorization': 'Bearer ' + token})
 
@@ -99,7 +99,7 @@ class LoginView(APIView):
                 return Response(data=myevent_res.json(),
                                 status=status.HTTP_401_UNAUTHORIZED)
 
-            events = myevent_res.json()["events"]
+            events = myevent_res.json()['events']
 
             for event in events:
                 try:
