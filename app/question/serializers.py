@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from contest.models import ContestQue
 from core.models import UserQuestion
-from question.models import HackingCode, Question, Testcase
+from question.models import IncorrectCode, Question, Testcase
 
 
 class TestcaseSerializer(serializers.ModelSerializer):
@@ -22,12 +22,12 @@ class QuestionDetailSerializer(serializers.ModelSerializer):
 class HackingQuestionSerializer(serializers.ModelSerializer):
     
     class Meta:
-        model = HackingCode
+        model = IncorrectCode
         fields = ['question', 'incorrect_code', 'code_lang']
 class ContestQuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContestQue
-        fields = ['is_binary', 'is_reverse_coding', 'is_hacking', 'order']
+        fields = ['is_binary', 'is_reverse_coding', 'is_bugoff', 'order']
 
 
 class QuestionListSerializer(serializers.ModelSerializer):

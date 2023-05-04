@@ -34,7 +34,7 @@ class ContestQue(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     is_binary = models.BooleanField(default=False)
     is_reverse_coding = models.BooleanField(default=False)
-    is_hacking = models.BooleanField(default=False)
+    is_bugoff = models.BooleanField(default=False)
     order = models.IntegerField()
 
     class Meta:

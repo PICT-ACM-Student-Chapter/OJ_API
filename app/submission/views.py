@@ -14,7 +14,7 @@ from rest_framework.views import APIView
 
 from contest.models import ContestQue, Contest
 from core.models import UserQuestion, UserContest
-from question.models import HackingCode, Question, Testcase
+from question.models import IncorrectCode, Question, Testcase
 from submission.models import HackSubmission, RunSubmission, Verdict, Submission
 from submission.permissions import IsRunInTime, IsRunSelf, IsSubmissionInTime
 from utils import b64_sub_str, b64_encode
@@ -109,14 +109,14 @@ class RunHack(CreateAPIView):
         contest_que = ContestQue.objects.filter(
             contest__id=kwargs['contest_id'],
             question__id=kwargs['ques_id'],
-            is_hacking=True
+            is_bugoff=True
         )
         fq = contest_que.first()
 
         if not fq:
             raise exceptions.NotFound("No Question Found")
 
-        hacking_code = HackingCode.objects.filter(
+        hacking_code = IncorrectCode.objects.filter(
             question__id=kwargs['ques_id'],
             code_lang=serializer.validated_data['lang_id'],
         )

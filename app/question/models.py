@@ -35,7 +35,7 @@ class Question(models.Model):
         return "{} - ID{}".format(self.name, self.id)
 
 
-class HackingCode(models.Model):
+class IncorrectCode(models.Model):
     question = models.ForeignKey(
         Question, null=False, on_delete=models.CASCADE)
     correct_code = models.TextField(blank=True, null=True)

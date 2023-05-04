@@ -6,7 +6,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from rest_framework.generics import RetrieveAPIView, ListAPIView
 
-from question.models import HackingCode, Question, Testcase
+from question.models import IncorrectCode, Question, Testcase
 from question.permissions import IsHackingQuestionAllowed, IsQuestionAllowed, IsInTime, \
     IsQuestionListInTime
 from question.serializers import HackingQuestionSerializer, QuestionDetailSerializer, \
@@ -29,7 +29,7 @@ class QuestionDetail(RetrieveAPIView):
     def get(self, request, *args, **kwargs):
         return self.retrieve(self, request, *args, **kwargs)
 
-class HackingQuestion(RetrieveAPIView):
+class BugoffQuestion(RetrieveAPIView):
     serializer_class = HackingQuestionSerializer
     lookup_field = 'code_lang'
     permission_classes = [IsHackingQuestionAllowed, IsInTime]
@@ -38,7 +38,7 @@ class HackingQuestion(RetrieveAPIView):
     def get_queryset(self):
         code_list = cache.get('{}-questions-{}-lang'.format(self.kwargs['que_id'], self.kwargs['code_lang']))
         if not code_list:
-            code_list = HackingCode.objects.filter(
+            code_list = IncorrectCode.objects.filter(
                 question__id=self.kwargs['que_id'],
             )
             cache.set('{}-questions-{}-lang'

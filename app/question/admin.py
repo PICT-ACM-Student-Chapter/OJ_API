@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.db import models
 from martor.widgets import AdminMartorWidget
 
-from question.models import Question, Testcase, HackingCode
+from question.models import Question, Testcase, IncorrectCode
 
 
 # Register your models here.
@@ -34,4 +34,4 @@ class TestcaseAdmin(admin.ModelAdmin):
 # Register your models here.
 admin.site.register(Question, QuestionModelAdmin)
 admin.site.register(Testcase, TestcaseAdmin)
-admin.site.register(HackingCode, HackingCodesModelAdmin)
+admin.site.register(IncorrectCode, HackingCodesModelAdmin)
