@@ -2,7 +2,7 @@ from dataclasses import field
 from pyexpat import model
 from rest_framework import serializers
 
-from .models import HackSubmission, RunSubmission, Submission, Verdict
+from .models import RunSubmission, Submission, Verdict
 
 
 class VerdictSerializer(serializers.ModelSerializer):
@@ -82,36 +82,4 @@ class RunRCSerializer(serializers.ModelSerializer):
             'stderr': {'required': False, 'read_only': True},
             'exec_time': {'required': False, 'read_only': True},
             'mem': {'required': False, 'read_only': True},
-        }
-
-
-class RunHackSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = RunSubmission
-        fields = ['id', 'status', 'stdin', 'stdout',
-                  'stderr', 'exec_time', 'mem', 'lang_id']
-        extra_kwargs = {
-            'id': {'required': False, 'read_only': True},
-            'status': {'required': False, 'read_only': True},
-            'stdin': {'required': True},
-            'stdout': {'required': False, 'read_only': True},
-            'stderr': {'required': False, 'read_only': True},
-            'exec_time': {'required': False, 'read_only': True},
-            'mem': {'required': False, 'read_only': True},
-            'lang_id': {'required': True}
-        }
-
-
-class HackSubmissionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = HackSubmission
-        fields = ['id', 'correct_code_submission_id', 'user_id', 'contest_id', 'ques_id',
-                  'incorrect_code_submission_id', 'status']
-        extra_kwargs = {
-            'id': {'required': False, 'read_only': True},
-            'correct_code_submission_id': {'required': True},
-            'incorrect_code_submission_id': {'required': True},
-            'user_id': {'required': True},
-            'contest_id': {'required': True},
-            'ques_id': {'required': True},
         }

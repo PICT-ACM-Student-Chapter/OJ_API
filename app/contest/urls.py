@@ -3,8 +3,8 @@ from django.urls import path
 from contest.views import ContestList, ContestDetails, StartContest, \
     LeaderBoard
 from question.views import QuestionList
-from submission.views import RunHack, SubmissionStatus, Submit, SubmissionList, RunRC, \
-    CheckRunStatus, CheckHackStatus
+from submission.views import SubmissionStatus, Submit, SubmissionList, RunRC, \
+    CheckRunStatus
 
 urlpatterns = [
     path('<str:id>/start', StartContest.as_view()),
@@ -15,10 +15,6 @@ urlpatterns = [
          RunRC.as_view()),  # only for rc
     path('<str:contest_id>/questions/<str:ques_id>/rc/run/<int:id>',
          CheckRunStatus.as_view()),  # only for rc
-    path('<str:contest_id>/questions/<str:ques_id>/hack/run',
-         RunHack.as_view()),  # only for hack
-    path('<str:contest_id>/questions/<str:ques_id>/hack/run/<int:id>',
-         CheckHackStatus.as_view()),  # only for hack
     path('<str:contest_id>/questions/<str:ques_id>/submit/<int:id>',
          SubmissionStatus.as_view()),
     path('<str:contest_id>/questions/<str:ques_id>/submissions',

@@ -16,7 +16,7 @@ j0_headers = {
 
 
 def submit_to_run(lang, code, stdin, callback_url):
-    url = '{}/submissions?base64_encoded=true/'.format(
+    url = '{}/submissions?base64_encoded=true'.format(
         os.environ['JUDGE0_BASE_URL'])
     data = {
         "source_code": code,
@@ -42,7 +42,7 @@ def submit_to_run(lang, code, stdin, callback_url):
 
 #
 def submit_to_submit(sub, lang, code, que_id, callback_url):
-    url = '{}/submissions/batch?base64_encoded=true/'.format(
+    url = '{}/submissions/batch?base64_encoded=true'.format(
         os.environ['JUDGE0_BASE_URL'])
     data = {
         'submissions': []
@@ -60,17 +60,17 @@ def submit_to_submit(sub, lang, code, que_id, callback_url):
     for verdict in verdicts:
         tc = verdict.test_case
         sub_obj = {"source_code": code,
-                   "language_id": int(lang['judge0_lang_id']),
-                   "number_of_runs": 1,
-                   "cpu_time_limit": float(lang['cpu_time_limit']),
-                   "cpu_extra_time": 0.5,
-                   "wall_time_limit": float(lang['wall_time_limit']),
-                   "memory_limit": float(lang['mem_limit']),
-                   "stack_limit": int(lang['stack_limit']),
-                   "max_processes_and_or_threads": int(lang['process_limit']),
+                   "language_id": lang['judge0_lang_id'],
+                   "number_of_runs": "1",
+                   "cpu_time_limit": lang['cpu_time_limit'],
+                   "cpu_extra_time": "0.5",
+                   "wall_time_limit": lang['wall_time_limit'],
+                   "memory_limit": lang['mem_limit'],
+                   "stack_limit": lang['stack_limit'],
+                   "max_processes_and_or_threads": lang['process_limit'],
                    "enable_per_process_and_thread_time_limit": False,
                    "enable_per_process_and_thread_memory_limit": False,
-                   "max_file_size": int(lang['filesize_limit']),
+                   "max_file_size": lang['filesize_limit'],
                    "callback_url": '{}/{}'.format(callback_url, verdict.id),
                    "stdin": cache.get('tc_{}_input'.format(tc.id)),
                    "expected_output": cache.get('tc_{}_output'.format(tc.id))

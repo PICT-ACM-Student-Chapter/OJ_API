@@ -34,7 +34,7 @@ class QuestionListSerializer(serializers.ModelSerializer):
     def get_user_score(self, model):
         user_ques = UserQuestion.objects.filter(
             user_contest__contest_id=self.context['view'].kwargs['contest_id'],
-            user_contest__user_id=self.context['request'].user.id,
+            user_contest__user_id=self.context['request'].user,
             que_id=model.id
         )
         try:

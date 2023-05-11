@@ -14,13 +14,13 @@ from rest_framework.views import APIView
 
 from contest.models import ContestQue, Contest
 from core.models import UserQuestion, UserContest
-from question.models import IncorrectCode, Question, Testcase
-from submission.models import HackSubmission, RunSubmission, Verdict, Submission
+from question.models import Question, Testcase
+from submission.models import RunSubmission, Verdict, Submission
 from submission.permissions import IsRunInTime, IsRunSelf, IsSubmissionInTime
 from utils import b64_sub_str, b64_encode
-from submission.throttles import RunHackThrottle, RunThrottle, RunRCThrottle, SubmitThrottle
+from submission.throttles import RunThrottle, RunRCThrottle, SubmitThrottle
 from .judge0_utils import submit_to_run, submit_to_submit, delete_submission
-from .serializers import HackSubmissionSerializer, RunHackSerializer, RunSubmissionSerializer, SubmissionSerializer, \
+from .serializers import RunSubmissionSerializer, SubmissionSerializer, \
     SubmissionListSerializer, RunRCSerializer
 
 STATUSES = {
@@ -95,81 +95,6 @@ class RunRC(CreateAPIView):
                            serializer.data['id']))
 
 
-class RunHack(CreateAPIView):
-    serializer_class = RunHackSerializer
-    permission_classes = [IsSubmissionInTime]
-    throttle_classes = [RunHackThrottle]
-
-    def create(self, request, *args, **kwargs):
-        data = {"lang_id": request.data.get(
-            'lang_id'), "stdin": request.data.get('stdin')}
-        serializer = self.get_serializer(data=data)
-        serializer.is_valid(raise_exception=True)
-
-        contest_que = ContestQue.objects.filter(
-            contest__id=kwargs['contest_id'],
-            question__id=kwargs['ques_id'],
-            is_bugoff=True
-        )
-        fq = contest_que.first()
-
-        if not fq:
-            raise exceptions.NotFound("No Question Found")
-
-        hacking_code = IncorrectCode.objects.filter(
-            question__id=kwargs['ques_id'],
-            code_lang=serializer.validated_data['lang_id'],
-        )
-
-        hc = hacking_code.first()
-
-        if not hc:
-            raise exceptions.NotFound("Language Not Found")
-
-        lang = hc.code_lang
-        correct_code = hc.correct_code
-
-        serializer.save(user_id=self.request.user,
-                        code=correct_code)
-
-        correct_code_submission_id = serializer.data['id']
-
-        submit_to_run(
-            model_to_dict(lang),
-            correct_code,
-            serializer.validated_data['stdin'],
-            '{}/{}'.format(os.environ['JUDGE0_RUN_CALLBACK_URL'],
-                           serializer.data['id'])
-        )
-
-        incorrect_code = hc.incorrect_code
-        serializer = self.get_serializer(data=data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save(user_id=self.request.user,
-                        code=incorrect_code)
-
-        incorrect_code_submission_id = serializer.data['id']
-
-        submit_to_run(
-            model_to_dict(lang),
-            incorrect_code,
-            serializer.validated_data['stdin'],
-            '{}/{}'.format(os.environ['JUDGE0_RUN_CALLBACK_URL'],
-                           serializer.data['id'])
-        )
-        data = {
-            'user_id': self.request.user.id,
-            'contest_id': kwargs['contest_id'],
-            'ques_id': kwargs['ques_id'],
-            'correct_code_submission_id': correct_code_submission_id,
-            'incorrect_code_submission_id': incorrect_code_submission_id,
-        }
-        serializer = HackSubmissionSerializer(data=data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-
 class CheckRunStatus(RetrieveAPIView):
     serializer_class = RunSubmissionSerializer
     lookup_url_kwarg = 'id'
@@ -182,65 +107,6 @@ class CheckRunStatus(RetrieveAPIView):
             res = self.retrieve(request, *args, **kwargs).data
             cache.set('run_{}'.format(self.kwargs['id']), res,
                       settings.CACHE_TTLS['RUN'])
-        return Response(data=res)
-
-
-class CheckHackStatus(APIView):
-    serializer_class = HackSubmissionSerializer
-    lookup_url_kwarg = 'id'
-    queryset = HackSubmission.objects.all()
-
-    def get(self, request, *args, **kwargs):
-        res = cache.get('hack_{}'.format(self.kwargs['id']))
-        if not res:
-            sub = HackSubmission.objects.filter(id=self.kwargs['id']).first()
-            if (sub.status == 'PENDING'):
-                correct_code_submission = sub.correct_code_submission_id
-                incorrect_code_submission = sub.incorrect_code_submission_id
-
-                if correct_code_submission.status == 'IN_QUEUE' or incorrect_code_submission.status == 'IN_QUEUE':
-                    return Response('verdict is in queue', status=status.HTTP_202_ACCEPTED)
-
-                success = False
-                if (incorrect_code_submission.status != 'AC') and correct_code_submission.status == 'AC':
-                    success = True
-                elif incorrect_code_submission.stdout != correct_code_submission.stdout:
-                    success = True
-
-                if success:
-                    HackSubmission.objects.filter(
-                        id=self.kwargs['id']).update(status='SUCCESS')
-                    sub.status = 'SUCCESS'
-                    try:
-                        user_que = UserQuestion.objects.get(
-                            que_id=sub.ques_id_id,
-                            user_contest__user_id_id=sub.user_id_id,
-                            user_contest__contest_id_id=sub.contest_id
-                        )
-
-                        if user_que.score < (sub.ques_id.score):
-                            user_que.score = sub.ques_id.score
-                            user_que.save()
-                    except UserQuestion.DoesNotExist:
-                        user_contest = UserContest.objects.get(
-                            user_id_id=sub.user_id_id,
-                            contest_id_id=sub.contest_id,
-                        )
-                        UserQuestion.objects.create(
-                            que_id=sub.ques_id_id,
-                            user_contest=user_contest,
-                            score=sub.ques_id.score,
-                        )
-
-                else:
-                    HackSubmission.objects.filter(
-                        id=self.kwargs['id']).update(status='FAILURE')
-                    sub.status = 'FAILURE'
-            serializer = HackSubmissionSerializer(data=model_to_dict(sub))
-            serializer.is_valid(raise_exception=True)
-            res = serializer.data
-            cache.set('hack_{}'.format(
-                self.kwargs['id']), res, settings.CACHE_TTLS['RUN'])
         return Response(data=res)
 
 
@@ -454,7 +320,7 @@ class CallbackSubmission(APIView):
         print(data)
         return Response(data={}, status=200)
 
-    @ staticmethod
+    @staticmethod
     def update_user_question(sub):
         # Time penalty
         time_penalty = (sub.created_at - sub.contest.start_time).seconds / 60
