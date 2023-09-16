@@ -16,7 +16,7 @@ j0_headers = {
 
 
 def submit_to_run(lang, code, stdin, callback_url):
-    url = '{}/submissions?base64_encoded=true/'.format(
+    url = '{}/submissions?base64_encoded=true'.format(
         os.environ['JUDGE0_BASE_URL'])
     data = {
         "source_code": code,
@@ -42,7 +42,7 @@ def submit_to_run(lang, code, stdin, callback_url):
 
 #
 def submit_to_submit(sub, lang, code, que_id, callback_url):
-    url = '{}/submissions/batch?base64_encoded=true/'.format(
+    url = '{}/submissions/batch?base64_encoded=true'.format(
         os.environ['JUDGE0_BASE_URL'])
     data = {
         'submissions': []
